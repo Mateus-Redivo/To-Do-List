@@ -83,6 +83,7 @@ spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
 # JPA/Hibernate
 spring.jpa.hibernate.ddl-auto=update
+#Caso queira criar o banco do zero alterne para auto=create, lembre de voltar ao update para nao zerar o banco a cada execução
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
