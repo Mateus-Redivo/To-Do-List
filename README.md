@@ -8,9 +8,11 @@ Este guia detalha o passo a passo para criar uma API RESTful utilizando Spring B
   - Project: Maven Project
   - Language: Java
   - Spring Boot: 3.5.4
-  - Group: com.rev
-  - Artifact: revisao
-  - Name: revisao
+  - Group: com.todolist
+  - Artifact: todolist-api
+  - Name: todolist-api
+  - Description: API RESTful para gerenciamento de tarefas (To-Do List)
+  - Package name: com.todolist.api
   - Packaging: Jar
   - Java: 21
 
