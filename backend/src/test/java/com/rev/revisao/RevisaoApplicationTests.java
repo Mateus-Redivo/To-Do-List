@@ -8,6 +8,8 @@ class RevisaoApplicationTests {
 
 	@Test
 	void contextLoads() {
+		// This test is intentionally left empty because it only verifies that the Spring application context loads successfully.
+		throw new UnsupportedOperationException("Not implemented yet");
 	}
 
 }
