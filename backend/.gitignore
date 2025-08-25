@@ -24,7 +24,33 @@ build/
 !**/src/test/**/build/
 
 ### VS Code ###
-.vscode/
+
 
 ### Environment Variables ###
 .env
+
+# Database files
+*.db
+*.sqlite
+*.h2.db
+
+# Application logs
+application.log
+application-*.log
+
+# IDE specific files
+*.iml
+*.ipr
+*.iws
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
