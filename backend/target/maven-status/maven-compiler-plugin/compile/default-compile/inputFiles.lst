@@ -1,6 +1,8 @@
-C:\Users\msred\Desktop\revisao-api\backend\src\main\java\com\rev\revisao\controller\TaskController.java
-C:\Users\msred\Desktop\revisao-api\backend\src\main\java\com\rev\revisao\dto\TaskDTO.java
-C:\Users\msred\Desktop\revisao-api\backend\src\main\java\com\rev\revisao\model\Task.java
-C:\Users\msred\Desktop\revisao-api\backend\src\main\java\com\rev\revisao\repository\TaskRepository.java
-C:\Users\msred\Desktop\revisao-api\backend\src\main\java\com\rev\revisao\RevisaoApplication.java
-C:\Users\msred\Desktop\revisao-api\backend\src\main\java\com\rev\revisao\service\TaskService.java
+D:\To-Do-List\backend\src\main\java\com\rev\revisao\config\CorsConfig.java
+D:\To-Do-List\backend\src\main\java\com\rev\revisao\controller\TaskController.java
+D:\To-Do-List\backend\src\main\java\com\rev\revisao\dto\TaskDTO.java
+D:\To-Do-List\backend\src\main\java\com\rev\revisao\mapper\TaskMapper.java
+D:\To-Do-List\backend\src\main\java\com\rev\revisao\model\Task.java
+D:\To-Do-List\backend\src\main\java\com\rev\revisao\repository\TaskRepository.java
+D:\To-Do-List\backend\src\main\java\com\rev\revisao\RevisaoApplication.java
+D:\To-Do-List\backend\src\main\java\com\rev\revisao\service\TaskService.java

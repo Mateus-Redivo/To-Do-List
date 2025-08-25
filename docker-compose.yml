@@ -32,19 +32,6 @@ services:
     networks:
       - api_network
 
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   container_name: revisao_frontend
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - backend
-  #   ports:
-  #     - "3000:80"
-  #   networks:
-  #     - api_network
-
 volumes:
   mysql_data:
 

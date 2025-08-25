@@ -1,6 +1,9 @@
+com\rev\revisao\config\CorsConfig.class
 com\rev\revisao\model\Task.class
 com\rev\revisao\RevisaoApplication.class
 com\rev\revisao\controller\TaskController.class
+com\rev\revisao\config\CorsConfig$1.class
 com\rev\revisao\dto\TaskDTO.class
+com\rev\revisao\mapper\TaskMapper.class
 com\rev\revisao\repository\TaskRepository.class
 com\rev\revisao\service\TaskService.class
