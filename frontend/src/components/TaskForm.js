@@ -43,7 +43,7 @@ function TaskForm({ form, onSubmit, onChange, submitting = false }) {
           className="submit-button"
           disabled={submitting || !form.title.trim()}
         >
-          {submitting ? "⏳ Adicionando..." : "✨ Adicionar Tarefa"}
+          {submitting ? "Adicionando..." : "Adicionar Tarefa"}
         </button>
       </form>
     </div>

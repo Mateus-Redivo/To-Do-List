@@ -7,7 +7,7 @@ function ErrorMessage({ error, onDismiss }) {
   return (
     <div className="error-message">
       <div className="error-content">
-        <span className="error-icon">⚠️</span>
+        <span className="error-icon">!</span>
         <span className="error-text">{error}</span>
         {onDismiss && (
           <button 
@@ -15,7 +15,7 @@ function ErrorMessage({ error, onDismiss }) {
             className="error-dismiss"
             aria-label="Fechar erro"
           >
-            ✕
+            X
           </button>
         )}
       </div>

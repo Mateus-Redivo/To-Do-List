@@ -26,7 +26,7 @@ function TaskList({ tasks, loading, onToggle, onDelete }) {
         <>
           {tasks.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-icon">📋</div>
+              <div className="empty-icon"></div>
               <h3 className="empty-title">{MESSAGES.EMPTY_TITLE}</h3>
               <p className="empty-description">
                 {MESSAGES.EMPTY_DESCRIPTION}

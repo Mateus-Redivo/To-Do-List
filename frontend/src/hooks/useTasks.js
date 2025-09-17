@@ -8,7 +8,7 @@ export function useTasks() {
   const [submitting, setSubmitting] = useState(false);
 
   // Função para carregar tarefas
-  async function fetchTasks() {
+  async function fetchTasks() { 
     setLoading(true);
     setError(null);
     try {

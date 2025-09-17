@@ -21,13 +21,13 @@ function TaskItem({ task, onToggle, onDelete }) {
             onClick={() => onToggle(task.id)}
             className={`action-button ${task.completed ? 'undo-button' : 'toggle-button'}`}
           >
-            {task.completed ? "↺ Desfazer" : "✓ Concluir"}
+            {task.completed ? "Desfazer" : "Concluir"}
           </button>
           <button
             onClick={() => onDelete(task.id)}
             className="action-button delete-button"
           >
-            🗑 Remover
+            Remover
           </button>
         </div>
       </div>
