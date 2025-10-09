@@ -1,6 +1,6 @@
 import type { Messages } from '../types';
 
-export const API_URL = "http://localhost:8080/api/tasks";
+export const API_URL = "/api/tasks";
 
 export const MESSAGES: Messages = {
   LOADING: "Carregando tarefas...",
