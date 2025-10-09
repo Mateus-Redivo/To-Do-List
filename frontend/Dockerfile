@@ -1,13 +1,29 @@
-# Etapa de build
-FROM node:20-alpine AS build
+# Build stage
+FROM node:18-alpine as builder
+
 WORKDIR /app
+
+# Copy package files
 COPY package*.json ./
 RUN npm ci
+
+# Copy source code
 COPY . .
+
+# Build the app
 RUN npm run build
 
-# Etapa de produção  
+# Production stage
 FROM nginx:alpine
-COPY --from=build /app/build /usr/share/nginx/html
+
+# Copy built app to nginx
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy nginx configuration if needed
+# COPY nginx.conf /etc/nginx/nginx.conf
+
+# Expose port 80
 EXPOSE 80
+
+# Start nginx
 CMD ["nginx", "-g", "daemon off;"]

@@ -1,9 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
 import TaskItem from './TaskItem';
 import { MESSAGES } from '../utils/constants';
+import type { TaskListProps } from '../types';
 
-function TaskList({ tasks, loading, onToggle, onDelete }) {
+function TaskList({ tasks, loading, onToggle, onDelete }: TaskListProps) {
   const completedCount = tasks.filter(task => task.completed).length;
 
   return (
@@ -49,19 +48,5 @@ function TaskList({ tasks, loading, onToggle, onDelete }) {
     </div>
   );
 }
-
-TaskList.propTypes = {
-  tasks: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-      title: PropTypes.string.isRequired,
-      description: PropTypes.string,
-      completed: PropTypes.bool.isRequired,
-    })
-  ).isRequired,
-  loading: PropTypes.bool.isRequired,
-  onToggle: PropTypes.func.isRequired,
-  onDelete: PropTypes.func.isRequired,
-};
 
 export default TaskList;

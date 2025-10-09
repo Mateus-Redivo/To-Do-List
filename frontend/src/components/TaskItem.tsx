@@ -1,7 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import type { TaskItemProps } from '../types';
 
-function TaskItem({ task, onToggle, onDelete }) {
+function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
   return (
     <div className={`task-item ${task.completed ? 'completed' : 'active'}`}>
       <div className="task-content">
@@ -34,16 +33,5 @@ function TaskItem({ task, onToggle, onDelete }) {
     </div>
   );
 }
-
-TaskItem.propTypes = {
-  task: PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    title: PropTypes.string.isRequired,
-    description: PropTypes.string,
-    completed: PropTypes.bool.isRequired,
-  }).isRequired,
-  onToggle: PropTypes.func.isRequired,
-  onDelete: PropTypes.func.isRequired,
-};
 
 export default TaskItem;

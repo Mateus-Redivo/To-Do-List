@@ -1,5 +1,3 @@
-import React from 'react';
-
 function TaskHeader() {
   return (
     <header className="task-header">

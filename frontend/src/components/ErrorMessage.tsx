@@ -1,7 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import type { ErrorMessageProps } from '../types';
 
-function ErrorMessage({ error, onDismiss }) {
+function ErrorMessage({ error, onDismiss }: ErrorMessageProps & { onDismiss?: () => void }) {
   if (!error) return null;
 
   return (
@@ -22,10 +21,5 @@ function ErrorMessage({ error, onDismiss }) {
     </div>
   );
 }
-
-ErrorMessage.propTypes = {
-  error: PropTypes.string,
-  onDismiss: PropTypes.func,
-};
 
 export default ErrorMessage;
