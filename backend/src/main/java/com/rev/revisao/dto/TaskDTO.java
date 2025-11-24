@@ -14,7 +14,7 @@ public class TaskDTO {
     @JsonProperty("title")
     private String title;
 
-        @Size(max = 500, message = "Description must be less than 500 characters")
+    @Size(max = 500, message = "Description must be less than 500 characters")
     @JsonProperty("description")
     private String description;
 
