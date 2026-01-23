@@ -15,37 +15,40 @@ function TaskList({ tasks, loading, onToggle, onDelete }: Readonly<TaskListProps
     );
   }
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Suas Tarefas ({tasks.length})</Text>
-        {tasks.length > 0 && (
-          <Text style={styles.count}>{completedCount} concluídas</Text>
-        )}
-      </View>
-
-      {tasks.length === 0 ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyTitle}>{MESSAGES.EMPTY_TITLE}</Text>
-          <Text style={styles.emptyDescription}>
-            {MESSAGES.EMPTY_DESCRIPTION}
-          </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={tasks}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <TaskItem
-              task={item}
-              onToggle={onToggle}
-              onDelete={onDelete}
-            />
-          )}
-          showsVerticalScrollIndicator={false}
-        />
+  const ListHeader = () => (
+    <View style={styles.header}>
+      <Text style={styles.title}>Suas Tarefas ({tasks.length})</Text>
+      {tasks.length > 0 && (
+        <Text style={styles.count}>{completedCount} concluídas</Text>
       )}
     </View>
+  );
+
+  const ListEmpty = () => (
+    <View style={styles.emptyState}>
+      <Text style={styles.emptyTitle}>{MESSAGES.EMPTY_TITLE}</Text>
+      <Text style={styles.emptyDescription}>
+        {MESSAGES.EMPTY_DESCRIPTION}
+      </Text>
+    </View>
+  );
+
+  return (
+    <FlatList
+      style={styles.container}
+      data={tasks}
+      keyExtractor={(item) => item.id.toString()}
+      renderItem={({ item }) => (
+        <TaskItem
+          task={item}
+          onToggle={onToggle}
+          onDelete={onDelete}
+        />
+      )}
+      ListHeaderComponent={ListHeader}
+      ListEmptyComponent={ListEmpty}
+      showsVerticalScrollIndicator={false}
+    />
   );
 }
 

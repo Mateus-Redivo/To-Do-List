@@ -16,6 +16,7 @@ const styles = StyleSheet.create({
   taskHeader: {
     backgroundColor: colors.primary,
     padding: spacing.lg,
+    paddingTop: spacing.xl * 1.5,
   },
   textHeader: {
     color: colors.text,

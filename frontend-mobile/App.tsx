@@ -1,4 +1,5 @@
-import { SafeAreaView, ScrollView, StyleSheet, StatusBar } from 'react-native';
+import { View, StyleSheet, StatusBar } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import TaskHeader from './src/components/TaskHeader';
 import TaskForm from './src/components/TaskForm';
@@ -23,28 +24,30 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      <ScrollView style={styles.scrollView}>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <StatusBar barStyle="dark-content" />
         <TaskHeader />
         
-        {error && <ErrorMessage error={error} />}
-        
-        <TaskForm
-          form={form}
-          onSubmit={handleSubmit}
-          onChange={handleChange}
-          submitting={submitting}
-        />
-        
-        <TaskList
-          tasks={tasks}
-          loading={loading}
-          onToggle={toggleTask}
-          onDelete={deleteTask}
-        />
-      </ScrollView>
-    </SafeAreaView>
+        <View style={styles.content}>
+          {error && <ErrorMessage error={error} />}
+          
+          <TaskForm
+            form={form}
+            onSubmit={handleSubmit}
+            onChange={handleChange}
+            submitting={submitting}
+          />
+          
+          <TaskList
+            tasks={tasks}
+            loading={loading}
+            onToggle={toggleTask}
+            onDelete={deleteTask}
+          />
+        </View>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
@@ -53,7 +56,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f3f4f6',
   },
-  scrollView: {
+  content: {
     flex: 1,
     padding: 16,
   },
