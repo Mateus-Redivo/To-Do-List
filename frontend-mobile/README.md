@@ -104,6 +104,28 @@ Este erro ocorre quando há incompatibilidade entre as versões do React e React
 - React Native: 0.76.5
 - TypeScript: ~5.6.2
 
+### Erro: "Install @expo/ngrok@^4.1.0 and try again"
+
+Este erro ocorre ao iniciar o Metro Bundler quando o Expo solicita a instalação do pacote `@expo/ngrok` para usar túneis.
+
+**Problema:**
+
+- O Expo oferece instalar `@expo/ngrok` globalmente, mas você pode preferir instalá-lo localmente no projeto.
+
+**Solução:**
+
+Instale o `@expo/ngrok` como dependência de desenvolvimento local:
+
+```bash
+npm install --save-dev @expo/ngrok
+```
+
+Após a instalação, inicie o Metro Bundler normalmente:
+
+```bash
+npx expo start
+```
+
 ## Desenvolvimento
 
 (A ser continuado...)
