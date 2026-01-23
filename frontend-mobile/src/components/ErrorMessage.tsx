@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import type { ErrorMessageProps } from '../types';
+import { colors, spacing, borderRadius } from '../styles/theme';
 
 function ErrorMessage({ error, onDismiss }: ErrorMessageProps & { onDismiss?: () => void }) {
   if (!error) return null;
@@ -16,7 +17,7 @@ function ErrorMessage({ error, onDismiss }: ErrorMessageProps & { onDismiss?: ()
             style={styles.errorDismiss}
             accessibilityLabel="Fechar erro"
           >
-            <Text style={styles.dismissText}>×</Text>
+            <Text style={styles.dismissText}>x</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -26,10 +27,10 @@ function ErrorMessage({ error, onDismiss }: ErrorMessageProps & { onDismiss?: ()
 
 const styles = StyleSheet.create({
   errorMessage: {
-    backgroundColor: '#fee',
-    padding: 12,
-    borderRadius: 8,
-    marginVertical: 8,
+    backgroundColor: colors.dangerLight + '22', // Equivalente a #fee com transparência
+    padding: spacing.md,
+    borderRadius: borderRadius.lg,
+    marginVertical: spacing.sm,
   },
   errorContent: {
     flexDirection: 'row',
@@ -37,22 +38,22 @@ const styles = StyleSheet.create({
   },
   errorIcon: {
     fontSize: 20,
-    color: '#c00',
+    color: colors.danger,
     fontWeight: 'bold',
-    marginRight: 8,
+    marginRight: spacing.sm,
   },
   errorText: {
     flex: 1,
-    color: '#c00',
+    color: colors.danger,
     fontSize: 14,
   },
   errorDismiss: {
-    padding: 4,
-    marginLeft: 8,
+    padding: spacing.xs,
+    marginLeft: spacing.sm,
   },
   dismissText: {
     fontSize: 18,
-    color: '#c00',
+    color: colors.danger,
     fontWeight: 'bold',
   },
 });

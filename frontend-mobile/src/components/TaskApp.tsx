@@ -26,12 +26,11 @@ function TaskApp() {
     deleteTask 
   } = useTasks();
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  function handleChange(field: string, value: string) {
+    setForm({ ...form, [field]: value });
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function handleSubmit() {
     const success = await createTask(form);
     if (success) {
       setForm({ title: "", description: "" });

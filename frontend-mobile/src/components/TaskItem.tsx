@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import type { TaskItemProps } from '../types';
 
-function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
+function TaskItem({ task, onToggle, onDelete }: Readonly<TaskItemProps>) {
   return (
     <View style={[styles.container, task.completed && styles.completed]}>
       <View style={styles.content}>

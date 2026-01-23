@@ -1,7 +1,7 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import type { TaskFormProps } from '../types';
 
-function TaskForm({ form, onSubmit, onChange, submitting = false }: TaskFormProps) {
+function TaskForm({ form, onSubmit, onChange, submitting = false }: Readonly<TaskFormProps>) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Adicionar Nova Tarefa</Text>

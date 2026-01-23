@@ -16,8 +16,8 @@ export interface TaskFormData {
 
 export interface TaskFormProps {
   form: TaskFormData;
-  onSubmit: () => void;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onSubmit: () => void | Promise<void>;
+  onChange: (field: string, value: string) => void;
   submitting?: boolean;
 }
 
