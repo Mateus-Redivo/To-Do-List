@@ -1,11 +1,28 @@
+/**
+ * Componente de lista de tarefas
+ * Renderiza todas as tarefas usando FlatList
+ */
+
 import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
 import TaskItem from './TaskItem';
+import { ListHeader } from './ListHeader';
+import { ListEmpty } from './ListEmpty';
 import { MESSAGES } from '../utils/constants';
 import type { TaskListProps } from '../types';
 
+// Cria o componente de cabeçalho da lista
+const createListHeader = (tasksCount: number, completedCount: number) => (
+  <ListHeader tasksCount={tasksCount} completedCount={completedCount} />
+);
+
+// Cria o componente de lista vazia
+const createListEmpty = () => <ListEmpty />;
+
 function TaskList({ tasks, loading, onToggle, onDelete }: Readonly<TaskListProps>) {
+  // Calcula quantas tarefas estão concluídas
   const completedCount = tasks.filter(task => task.completed).length;
 
+  // Exibe indicador de carregamento
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -15,29 +32,12 @@ function TaskList({ tasks, loading, onToggle, onDelete }: Readonly<TaskListProps
     );
   }
 
-  const ListHeader = () => (
-    <View style={styles.header}>
-      <Text style={styles.title}>Suas Tarefas ({tasks.length})</Text>
-      {tasks.length > 0 && (
-        <Text style={styles.count}>{completedCount} concluídas</Text>
-      )}
-    </View>
-  );
-
-  const ListEmpty = () => (
-    <View style={styles.emptyState}>
-      <Text style={styles.emptyTitle}>{MESSAGES.EMPTY_TITLE}</Text>
-      <Text style={styles.emptyDescription}>
-        {MESSAGES.EMPTY_DESCRIPTION}
-      </Text>
-    </View>
-  );
-
   return (
+    // Lista otimizada para renderização de tarefas
     <FlatList
       style={styles.container}
-      data={tasks}
-      keyExtractor={(item) => item.id.toString()}
+      data={tasks} // Array de tarefas
+      keyExtractor={(item) => item.id.toString()} // Chave única para cada item
       renderItem={({ item }) => (
         <TaskItem
           task={item}
@@ -45,14 +45,16 @@ function TaskList({ tasks, loading, onToggle, onDelete }: Readonly<TaskListProps
           onDelete={onDelete}
         />
       )}
-      ListHeaderComponent={ListHeader}
-      ListEmptyComponent={ListEmpty}
-      showsVerticalScrollIndicator={false}
+      ListHeaderComponent={createListHeader(tasks.length, completedCount)} // Cabeçalho com contador
+      ListEmptyComponent={createListEmpty()} // Exibido quando não há tarefas
+      showsVerticalScrollIndicator={false} // Remove barra de rolagem
     />
   );
 }
 
+// Estilos do componente
 const styles = StyleSheet.create({
+  // Container ocupa toda a tela disponível
   container: {
     flex: 1,
   },
@@ -70,6 +72,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6b7280',
   },
+  // Container centralizado para loading
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',

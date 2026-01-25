@@ -1,3 +1,8 @@
+/**
+ * Componente de cabeçalho principal
+ * Exibe título e descrição da aplicação
+ */
+
 import { Text, View, StyleSheet } from "react-native";
 import { colors, spacing, typography } from "../styles/theme";
 

@@ -1,5 +1,11 @@
+/**
+ * Tema da aplicação
+ * Define cores, espaçamentos, tipografia e estilos globais
+ */
+
+// Paleta de cores
 export const colors = {
-  // Primary
+  // Cores primárias
   primary: '#3b82f6',
   primaryLight: '#93c5fd',
   primaryDark: '#1e40af',
@@ -36,6 +42,7 @@ export const colors = {
   border: '#e5e7eb',
 };
 
+// Espaçamentos padronizados
 export const spacing = {
   xs: 4,
   sm: 8,
@@ -46,6 +53,7 @@ export const spacing = {
   xxxl: 32,
 };
 
+// Configurações de tipografia
 export const typography = {
   sizes: {
     xs: 12,
@@ -64,6 +72,7 @@ export const typography = {
   },
 };
 
+// Raios de borda
 export const borderRadius = {
   sm: 4,
   md: 6,
@@ -72,6 +81,7 @@ export const borderRadius = {
   full: 9999,
 };
 
+// Sombras para elevação
 export const shadows = {
   sm: {
     shadowColor: '#000',

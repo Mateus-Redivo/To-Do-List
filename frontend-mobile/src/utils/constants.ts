@@ -1,7 +1,14 @@
+/**
+ * Constantes da aplicação
+ * Centraliza URLs, mensagens e configurações
+ */
+
 import type { Messages } from '../types';
 
-export const API_URL = "http://10.21.156.31:8080/api/tasks";
+// URL base da API
+export const API_URL = "{API_URL}:8080/api/tasks";
 
+// Mensagens do sistema
 export const MESSAGES: Messages = {
   LOADING: "Carregando tarefas...",
   EMPTY_TITLE: "Nenhuma tarefa encontrada",

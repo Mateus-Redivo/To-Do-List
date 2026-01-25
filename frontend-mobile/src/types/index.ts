@@ -1,5 +1,9 @@
-// Types and interfaces for the Task application
+/**
+ * Definições de tipos e interfaces TypeScript
+ * Centraliza todas as tipagens da aplicação
+ */
 
+// Interface principal da tarefa
 export interface Task {
   id: number;
   title: string;
@@ -9,11 +13,13 @@ export interface Task {
   updatedAt?: string;
 }
 
+// Dados do formulário de criação de tarefas
 export interface TaskFormData {
   title: string;
   description: string;
 }
 
+// Props do componente de formulário
 export interface TaskFormProps {
   form: TaskFormData;
   onSubmit: () => void | Promise<void>;
@@ -21,6 +27,7 @@ export interface TaskFormProps {
   submitting?: boolean;
 }
 
+// Props do componente de lista de tarefas
 export interface TaskListProps {
   tasks: Task[];
   loading: boolean;
@@ -28,12 +35,26 @@ export interface TaskListProps {
   onDelete: (id: number) => void;
 }
 
+// Props do componente individual de tarefa
 export interface TaskItemProps {
   task: Task;
   onToggle: (id: number) => void;
   onDelete: (id: number) => void;
 }
 
+// Props do cabeçalho da lista
+export interface ListHeaderProps {
+  tasksCount: number;
+  completedCount: number;
+}
+
+// Props do estado vazio da lista
+export interface ListEmptyProps {
+  title?: string; // Optional custom title
+  description?: string;
+}
+
+// Props do componente de erro
 export interface ErrorMessageProps {
   error: string;
 }
@@ -49,6 +70,7 @@ export interface UseTasksReturn {
   fetchTasks: () => Promise<void>;
 }
 
+// Mensagens da aplicação
 export interface Messages {
   LOADING: string;
   EMPTY_TITLE: string;
@@ -58,3 +80,4 @@ export interface Messages {
   ERROR_UPDATE: string;
   ERROR_DELETE: string;
 }
+

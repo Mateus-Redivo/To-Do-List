@@ -1,3 +1,8 @@
+/**
+ * Componente de rodapé
+ * Exibe informações adicionais no final da aplicação
+ */
+
 import { View, Text, StyleSheet } from "react-native";
 import { colors, spacing } from '../styles/theme';
 

@@ -1,3 +1,8 @@
+/**
+ * Componente principal da aplicação
+ * Integra todos os componentes e gerencia o estado global
+ */
+
 import { useState } from "react";
 import "./TaskApp.css";
 
@@ -15,7 +20,10 @@ import { useTasks } from '../hooks/useTasks';
 import type { TaskFormData } from '../types';
 
 function TaskApp() {
+  // Estado do formulário
   const [form, setForm] = useState<TaskFormData>({ title: "", description: "" });
+  
+  // Hook de gerenciamento de tarefas
   const { 
     tasks, 
     loading, 
@@ -26,10 +34,12 @@ function TaskApp() {
     deleteTask 
   } = useTasks();
 
+  // Atualiza campos do formulário
   function handleChange(field: string, value: string) {
     setForm({ ...form, [field]: value });
   }
 
+  // Envia nova tarefa e limpa formulário
   async function handleSubmit() {
     const success = await createTask(form);
     if (success) {
@@ -40,10 +50,13 @@ function TaskApp() {
   return (
     <div className="task-app">
       <div className="task-app-content">
+        {/* Cabeçalho da aplicação */}
         <TaskHeader />
         
+        {/* Exibe mensagem de erro se houver */}
         {error && <ErrorMessage error={error} />}
         
+        {/* Formulário para criar novas tarefas */}
         <TaskForm 
           form={form}
           onSubmit={handleSubmit}
@@ -51,6 +64,7 @@ function TaskApp() {
           submitting={submitting}
         />
         
+        {/* Lista de todas as tarefas */}
         <TaskList 
           tasks={tasks}
           loading={loading}
@@ -58,6 +72,7 @@ function TaskApp() {
           onDelete={deleteTask}
         />
         
+        {/* Rodapé da aplicação */}
         <TaskFooter />
       </div>
     </div>
