@@ -1,5 +1,6 @@
 package com.rev.revisao.controller;
 
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
@@ -52,7 +53,7 @@ public class TaskController {
         @ApiResponse(responseCode = "404", description = "Tarefa não encontrada")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {
+    public ResponseEntity<TaskDTO> getTaskById(@PathVariable @NonNull Long id) {
         Optional<TaskDTO> task = taskService.getTaskById(id);
         return task.map(ResponseEntity::ok)
                .orElse(ResponseEntity.notFound().build()); 
@@ -63,7 +64,7 @@ public class TaskController {
         @ApiResponse(responseCode = "200", description = "Tarefa criada com sucesso")
     })
     @PostMapping
-    public ResponseEntity<TaskDTO> createTask(@Valid @RequestBody TaskDTO taskDTO) {
+    public ResponseEntity<TaskDTO> createTask(@Valid @RequestBody @NonNull TaskDTO taskDTO) {
         TaskDTO createdTask = taskService.createTask(taskDTO);
         return ResponseEntity.ok(createdTask);
     }
@@ -74,7 +75,7 @@ public class TaskController {
         @ApiResponse(responseCode = "404", description = "Tarefa não encontrada")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @Valid @RequestBody TaskDTO taskDTO) {
+    public ResponseEntity<TaskDTO> updateTask(@PathVariable @NonNull Long id, @Valid @RequestBody @NonNull TaskDTO taskDTO) {
         Optional<TaskDTO> updatedTask = taskService.updateTask(id, taskDTO);
         return updatedTask.map(ResponseEntity::ok)
                .orElse(ResponseEntity.notFound().build());
@@ -86,7 +87,7 @@ public class TaskController {
         @ApiResponse(responseCode = "404", description = "Tarefa não encontrada")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id){
+    public ResponseEntity<Void> deleteTask(@PathVariable @NonNull Long id){
         boolean deleted = taskService.deleteTask(id);
         return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
@@ -97,7 +98,7 @@ public class TaskController {
         @ApiResponse(responseCode = "404", description = "Tarefa não encontrada")
     })
     @PatchMapping("/{id}/toggle")
-    public ResponseEntity<TaskDTO> toggleTaskCompletion(@PathVariable long id){
+    public ResponseEntity<TaskDTO> toggleTaskCompletion(@PathVariable @NonNull Long id){
         Optional<TaskDTO> updatedTask = taskService.toggleTaskCompletion(id);
         return updatedTask.map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());

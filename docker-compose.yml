@@ -59,6 +59,10 @@ services:
     networks:
       - api_network
 
+  # frontend-mobile:
+  #   NOTA: Expo não funciona bem em Docker devido a conflitos de versão
+  #   Execute localmente: cd frontend-mobile && npm start
+
 volumes:
   mysql_data:
 

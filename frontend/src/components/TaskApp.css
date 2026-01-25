@@ -279,7 +279,7 @@
 
 .undo-button {
   background-color: #fef3c7;
-  color: #d97706;
+  color: #b45309;
 }
 
 .undo-button:hover {
@@ -288,11 +288,90 @@
 
 .delete-button {
   background-color: #fee2e2;
-  color: #dc2626;
+  color: #991b1b;
 }
 
 .delete-button:hover {
   background-color: #fecaca;
+}
+
+.edit-button {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.edit-button:hover {
+  background-color: #bfdbfe;
+}
+
+/* Formulário de edição */
+.task-item.editing {
+  background-color: #eff6ff;
+  border-color: #93c5fd;
+}
+
+.edit-form {
+  width: 100%;
+}
+
+.edit-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.2s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.edit-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.2s ease;
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.edit-input:focus,
+.edit-textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.edit-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.save-button {
+  flex: 1;
+  background-color: #15803d;
+  color: white;
+  padding: 0.5rem 1rem;
+}
+
+.save-button:hover {
+  background-color: #16a34a;
+}
+
+.cancel-button {
+  flex: 1;
+  background-color: #e5e7eb;
+  color: #374151;
+  padding: 0.5rem 1rem;
+}
+
+.cancel-button:hover {
+  background-color: #d1d5db;
 }
 
 /* Mensagem de erro */
@@ -309,7 +388,7 @@
   background-color: #fef2f2;
   border: 1px solid #fecaca;
   border-radius: 8px;
-  color: #dc2626;
+  color: #991b1b;
 }
 
 .error-icon {
@@ -324,7 +403,7 @@
 .error-dismiss {
   background: none;
   border: none;
-  color: #dc2626;
+  color: #991b1b;
   cursor: pointer;
   font-size: 1rem;
   padding: 0.25rem;

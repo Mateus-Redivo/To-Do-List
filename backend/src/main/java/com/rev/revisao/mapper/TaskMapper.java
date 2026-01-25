@@ -3,12 +3,13 @@ package com.rev.revisao.mapper;
 import com.rev.revisao.dto.TaskDTO;
 import com.rev.revisao.model.Task;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TaskMapper {
     
-    public TaskDTO convertToDTO(Task task){
+    public TaskDTO convertToDTO(@NonNull Task task){
         return new TaskDTO(
             task.getId(),
             task.getTitle(),
@@ -17,7 +18,7 @@ public class TaskMapper {
         );
     }
 
-    public Task convertToEntity(TaskDTO taskDTO){
+    public @NonNull Task convertToEntity(@NonNull TaskDTO taskDTO){
         Task task = new Task();
         task.setTitle(taskDTO.getTitle());
         task.setDescription(taskDTO.getDescription());

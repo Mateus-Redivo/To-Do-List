@@ -3,6 +3,7 @@ package com.rev.revisao.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.springframework.lang.NonNull;
 
 public class TaskDTO {
     
@@ -12,20 +13,23 @@ public class TaskDTO {
     @NotBlank(message = "Title is required")
     @Size(max = 100, message = "Title must be less than 100 characters")
     @JsonProperty("title")
-    private String title;
+    private @NonNull String title;
 
     @Size(max = 500, message = "Description must be less than 500 characters")
     @JsonProperty("description")
     private String description;
 
     @JsonProperty("completed")
-    private Boolean completed;
+    private @NonNull Boolean completed;
 
     //Constructors
 
-    public TaskDTO() {}
+    public TaskDTO() {
+        this.title = "";
+        this.completed = false;
+    }
 
-    public TaskDTO(Long id, String title, String description, Boolean completed){
+    public TaskDTO(Long id, @NonNull String title, String description, @NonNull Boolean completed){
         this.id = id;
         this.title = title;
         this.description = description;
@@ -38,7 +42,7 @@ public class TaskDTO {
         return id;
     }
 
-    public String getTitle() { 
+    public @NonNull String getTitle() { 
         return title;
     }
     
@@ -46,7 +50,7 @@ public class TaskDTO {
         return description;
     }
 
-    public Boolean getCompleted() { 
+    public @NonNull Boolean getCompleted() { 
         return completed;
     }
 
@@ -54,7 +58,7 @@ public class TaskDTO {
         this.id = id;
     }
 
-    public void setTitle(String title){
+    public void setTitle(@NonNull String title){
         this.title = title;
     }
 
@@ -62,7 +66,7 @@ public class TaskDTO {
         this.description = description;
     }
 
-    public void setCompleted(Boolean completed){
+    public void setCompleted(@NonNull Boolean completed){
         this.completed = completed;
     }
     

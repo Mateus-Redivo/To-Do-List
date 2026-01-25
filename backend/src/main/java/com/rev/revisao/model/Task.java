@@ -1,6 +1,7 @@
 package com.rev.revisao.model;
 
 import jakarta.persistence.*;
+import org.springframework.lang.NonNull;
 
 @Entity
 @Table(name = "tasks")
@@ -11,18 +12,21 @@ public class Task {
     private Long id;
 
     @Column(nullable = false)
-    private String title;
+    private @NonNull String title;
 
     @Column
     private String description;
 
     @Column(nullable = false)
-    private Boolean completed = false;
+    private @NonNull Boolean completed = false;
 
     //Constructors
-    public Task() {}
+    public Task() {
+        this.title = "";
+        this.completed = false;
+    }
 
-    public Task(String title, String description) {
+    public Task(@NonNull String title, String description) {
         this.title = title;
         this.description = description;
         this.completed = false;
@@ -34,7 +38,7 @@ public class Task {
         return id;
     }
 
-    public String getTitle() { 
+    public @NonNull String getTitle() { 
         return title;
     }
     
@@ -42,7 +46,7 @@ public class Task {
         return description;
     }
 
-    public Boolean getCompleted() { 
+    public @NonNull Boolean getCompleted() { 
         return completed;
     }
 
@@ -50,7 +54,7 @@ public class Task {
         this.id = id;
     }
 
-    public void setTitle(String title){
+    public void setTitle(@NonNull String title){
         this.title = title;
     }
 
@@ -58,7 +62,7 @@ public class Task {
         this.description = description;
     }
 
-    public void setCompleted(Boolean completed){
+    public void setCompleted(@NonNull Boolean completed){
         this.completed = completed;
     }
 }

@@ -2,7 +2,7 @@ import TaskItem from './TaskItem';
 import { MESSAGES } from '../utils/constants';
 import type { TaskListProps } from '../types';
 
-function TaskList({ tasks, loading, onToggle, onDelete }: TaskListProps) {
+function TaskList({ tasks, loading, onToggle, onDelete, onEdit }: Readonly<TaskListProps>) {
   const completedCount = tasks.filter(task => task.completed).length;
 
   return (
@@ -39,6 +39,7 @@ function TaskList({ tasks, loading, onToggle, onDelete }: TaskListProps) {
                   task={task}
                   onToggle={onToggle}
                   onDelete={onDelete}
+                  onEdit={onEdit}
                 />
               ))}
             </div>

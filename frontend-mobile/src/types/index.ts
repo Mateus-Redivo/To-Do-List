@@ -1,5 +1,9 @@
-// Types and interfaces for the Task application
+/**
+ * Definições de tipos e interfaces TypeScript
+ * Centraliza todas as tipagens da aplicação
+ */
 
+// Interface principal da tarefa
 export interface Task {
   id: number;
   title: string;
@@ -9,33 +13,48 @@ export interface Task {
   updatedAt?: string;
 }
 
+// Dados do formulário de criação de tarefas
 export interface TaskFormData {
   title: string;
   description: string;
 }
 
+// Props do componente de formulário
 export interface TaskFormProps {
   form: TaskFormData;
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onSubmit: () => void | Promise<void>;
+  onChange: (field: string, value: string) => void;
   submitting?: boolean;
 }
 
+// Props do componente de lista de tarefas
 export interface TaskListProps {
   tasks: Task[];
   loading: boolean;
   onToggle: (id: number) => void;
   onDelete: (id: number) => void;
-  onEdit: (id: number, taskData: TaskFormData) => void;
 }
 
+// Props do componente individual de tarefa
 export interface TaskItemProps {
   task: Task;
   onToggle: (id: number) => void;
   onDelete: (id: number) => void;
-  onEdit: (id: number, taskData: TaskFormData) => void;
 }
 
+// Props do cabeçalho da lista
+export interface ListHeaderProps {
+  tasksCount: number;
+  completedCount: number;
+}
+
+// Props do estado vazio da lista
+export interface ListEmptyProps {
+  title?: string; // Optional custom title
+  description?: string;
+}
+
+// Props do componente de erro
 export interface ErrorMessageProps {
   error: string;
 }
@@ -46,12 +65,12 @@ export interface UseTasksReturn {
   error: string | null;
   submitting: boolean;
   createTask: (taskData: TaskFormData) => Promise<boolean>;
-  updateTask: (id: number, taskData: TaskFormData) => Promise<boolean>;
   toggleTask: (id: number) => Promise<void>;
   deleteTask: (id: number) => Promise<void>;
   fetchTasks: () => Promise<void>;
 }
 
+// Mensagens da aplicação
 export interface Messages {
   LOADING: string;
   EMPTY_TITLE: string;
@@ -61,3 +80,4 @@ export interface Messages {
   ERROR_UPDATE: string;
   ERROR_DELETE: string;
 }
+
