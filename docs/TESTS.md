@@ -12,9 +12,8 @@ Este documento explica a estrutura de testes da aplicação To Do List, servindo
 2. [Estrutura de Testes](#estrutura-de-testes)
 3. [Tipos de Testes](#tipos-de-testes)
 4. [Anotações Importantes](#anotações-importantes)
-5. [Padrão AAA](#padrão-aaa)
-6. [Mockito - Framework de Mocks](#mockito---framework-de-mocks)
-7. [Como Executar os Testes](#como-executar-os-testes)
+5. [Mockito - Framework de Mocks](#mockito---framework-de-mocks)
+6. [Como Executar os Testes](#como-executar-os-testes)
 
 ---
 
