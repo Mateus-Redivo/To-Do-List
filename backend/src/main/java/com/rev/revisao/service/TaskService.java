@@ -1,5 +1,6 @@
 package com.rev.revisao.service;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import com.rev.revisao.dto.TaskDTO;
@@ -28,18 +29,18 @@ public class TaskService {
         .toList();
     }
 
-    public Optional<TaskDTO> getTaskById(Long id){
+    public Optional<TaskDTO> getTaskById(@NonNull Long id){
         return taskRepository.findById(id)
                .map(taskMapper::convertToDTO);
     }
 
-    public TaskDTO createTask(TaskDTO taskDTO) {
+    public TaskDTO createTask(@NonNull TaskDTO taskDTO) {
         Task task = taskMapper.convertToEntity(taskDTO);
         Task savedTask = taskRepository.save(task);
         return taskMapper.convertToDTO(savedTask);
     }
 
-    public Optional <TaskDTO> updateTask(Long id, TaskDTO taskDTO){
+    public Optional <TaskDTO> updateTask(@NonNull Long id, @NonNull TaskDTO taskDTO){
         return taskRepository.findById(id)
         .map(existingTask -> {
             existingTask.setTitle(taskDTO.getTitle());
@@ -50,7 +51,7 @@ public class TaskService {
         });
     }
 
-    public boolean deleteTask(Long id){
+    public boolean deleteTask(@NonNull Long id){
         if (taskRepository.existsById(id)){
             taskRepository.deleteById(id);
             return true;
@@ -58,7 +59,7 @@ public class TaskService {
         return false;
     }
 
-    public Optional <TaskDTO> toggleTaskCompletion(Long id){
+    public Optional <TaskDTO> toggleTaskCompletion(@NonNull Long id){
         return taskRepository.findById(id)
                .map(task -> {
                 task.setCompleted(!task.getCompleted());
