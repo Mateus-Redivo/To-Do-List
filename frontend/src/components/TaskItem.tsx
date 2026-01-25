@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { TaskItemProps, TaskFormData } from '../types';
 
-function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
+function TaskItem({ task, onToggle, onDelete, onEdit }: Readonly<TaskItemProps>) {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<TaskFormData>({
     title: task.title,
@@ -19,7 +19,7 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
 
   async function handleSave() {
     if (editForm.title.trim()) {
-      await onEdit(task.id, editForm);
+      onEdit(task.id, editForm);
       setIsEditing(false);
     }
   }
