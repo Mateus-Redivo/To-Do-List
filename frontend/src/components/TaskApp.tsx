@@ -1,18 +1,21 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "./TaskApp.css";
 
 // Componentes
-import TaskHeader from './components/TaskHeader';
-import TaskForm from './components/TaskForm';
-import TaskList from './components/TaskList';
-import TaskFooter from './components/TaskFooter';
-import ErrorMessage from './components/ErrorMessage';
+import TaskHeader from './TaskHeader';
+import TaskForm from './TaskForm';
+import TaskList from './TaskList';
+import TaskFooter from './TaskFooter';
+import ErrorMessage from './ErrorMessage';
 
 // Hook personalizado
-import { useTasks } from './hooks/useTasks';
+import { useTasks } from '../hooks/useTasks';
+
+// Types
+import type { TaskFormData } from '../types';
 
 function TaskApp() {
-  const [form, setForm] = useState({ title: "", description: "" });
+  const [form, setForm] = useState<TaskFormData>({ title: "", description: "" });
   const { 
     tasks, 
     loading, 
@@ -23,11 +26,11 @@ function TaskApp() {
     deleteTask 
   } = useTasks();
 
-  function handleChange(e) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const success = await createTask(form);
     if (success) {

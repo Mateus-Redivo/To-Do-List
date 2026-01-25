@@ -7,11 +7,17 @@ RUN mvn clean package -DskipTests
 
 # Etapa de execução
 FROM eclipse-temurin:21-jre
+
+# Instalar curl e netcat para health checks e wait script
+RUN apt-get update && apt-get install -y curl netcat-openbsd && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
+COPY scripts/wait-for-mysql.sh ./wait-for-mysql.sh
+RUN chmod +x wait-for-mysql.sh
 
 # Exponha a porta padrão do Spring Boot (ajuste se necessário)
 EXPOSE 8080
 
-# Comando para rodar a aplicação
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Comando para rodar a aplicação com wait script
+ENTRYPOINT ["./wait-for-mysql.sh", "mysql", "3306", "java", "-jar", "app.jar"]

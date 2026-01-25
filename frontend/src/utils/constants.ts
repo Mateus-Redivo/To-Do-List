@@ -1,6 +1,8 @@
-export const API_URL = "http://localhost:8080/api/tasks";
+import type { Messages } from '../types';
 
-export const MESSAGES = {
+export const API_URL = "/api/tasks";
+
+export const MESSAGES: Messages = {
   LOADING: "Carregando tarefas...",
   EMPTY_TITLE: "Nenhuma tarefa encontrada",
   EMPTY_DESCRIPTION: "Adicione sua primeira tarefa acima para começar!",

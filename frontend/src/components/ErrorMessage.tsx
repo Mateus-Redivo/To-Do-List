@@ -1,13 +1,12 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import type { ErrorMessageProps } from '../types';
 
-function ErrorMessage({ error, onDismiss }) {
+function ErrorMessage({ error, onDismiss }: ErrorMessageProps & { onDismiss?: () => void }) {
   if (!error) return null;
 
   return (
     <div className="error-message">
       <div className="error-content">
-        <span className="error-icon">⚠️</span>
+        <span className="error-icon">!</span>
         <span className="error-text">{error}</span>
         {onDismiss && (
           <button 
@@ -15,17 +14,12 @@ function ErrorMessage({ error, onDismiss }) {
             className="error-dismiss"
             aria-label="Fechar erro"
           >
-            ✕
+            X
           </button>
         )}
       </div>
     </div>
   );
 }
-
-ErrorMessage.propTypes = {
-  error: PropTypes.string,
-  onDismiss: PropTypes.func,
-};
 
 export default ErrorMessage;

@@ -202,7 +202,292 @@ O projeto inclui configuração Docker com `docker-compose.yml`:
 - **Swagger UI**: Disponível em `http://localhost:8080/swagger-ui.html`
 - **OpenAPI Docs**: Disponível em `http://localhost:8080/api-docs`
 
-## 12. Execução da Aplicação
+## 12. Frontend React
+
+Este projeto inclui um frontend desenvolvido em React que consome a API REST do backend.
+
+### 12.1. Estrutura do Frontend
+```
+frontend/
+  public/
+    index.html
+    favicon.ico
+    manifest.json
+  src/
+    TaskApp.js          # Componente principal
+    TaskApp.css         # Estilos principais
+    index.js           # Ponto de entrada
+    index.css          # Estilos globais
+    components/
+      TaskHeader.js     # Cabeçalho da aplicação
+      TaskForm.js       # Formulário para criar tarefas
+      TaskList.js       # Lista de tarefas
+      TaskItem.js       # Item individual da tarefa
+      TaskFooter.js     # Rodapé com estatísticas
+      ErrorMessage.js   # Componente de erro
+    hooks/
+      useTasks.js       # Hook personalizado para gerenciar estado
+    utils/
+      constants.js      # Constantes e configurações
+```
+
+### 12.2. Criação do Projeto Frontend
+
+#### Passo 1: Criar o projeto React
+```bash
+npx create-react-app frontend
+cd frontend
+```
+
+#### Passo 2: Instalar dependências adicionais
+```bash
+npm install prop-types
+```
+
+#### Passo 3: Configurar as dependências no package.json
+```json
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.6.4",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^13.5.0",
+    "prop-types": "^15.8.1",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  }
+}
+```
+
+### 12.3. Configuração da API
+
+#### constants.js
+```javascript
+export const API_URL = 'http://localhost:8080/api/tasks';
+
+export const MESSAGES = {
+  ERROR_LOAD: 'Erro ao carregar tarefas. Tente novamente.',
+  ERROR_CREATE: 'Erro ao criar tarefa. Tente novamente.',
+  ERROR_UPDATE: 'Erro ao atualizar tarefa. Tente novamente.',
+  ERROR_DELETE: 'Erro ao excluir tarefa. Tente novamente.',
+  SUCCESS_CREATE: 'Tarefa criada com sucesso!',
+  SUCCESS_UPDATE: 'Tarefa atualizada com sucesso!',
+  SUCCESS_DELETE: 'Tarefa excluída com sucesso!'
+};
+```
+
+### 12.4. Hook Personalizado (useTasks.js)
+
+O hook `useTasks` centraliza toda a lógica de gerenciamento de estado e comunicação com a API:
+
+```javascript
+import { useState, useEffect } from 'react';
+import { API_URL, MESSAGES } from '../utils/constants';
+
+export function useTasks() {
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Funções implementadas:
+  // - fetchTasks(): Carrega todas as tarefas
+  // - createTask(taskData): Cria nova tarefa
+  // - toggleTask(id): Alterna status da tarefa
+  // - deleteTask(id): Remove tarefa
+  
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  return {
+    tasks,
+    loading,
+    error,
+    submitting,
+    createTask,
+    toggleTask,
+    deleteTask
+  };
+}
+```
+
+### 12.5. Componentes Principais
+
+#### TaskApp.js (Componente Principal)
+```javascript
+import React, { useState } from "react";
+import TaskHeader from './components/TaskHeader';
+import TaskForm from './components/TaskForm';
+import TaskList from './components/TaskList';
+import TaskFooter from './components/TaskFooter';
+import ErrorMessage from './components/ErrorMessage';
+import { useTasks } from './hooks/useTasks';
+
+function TaskApp() {
+  const [form, setForm] = useState({ title: "", description: "" });
+  const { tasks, loading, error, submitting, createTask, toggleTask, deleteTask } = useTasks();
+  
+  // Lógica de manipulação de formulário e eventos
+}
+```
+
+#### TaskForm.js (Formulário de Criação)
+```javascript
+import React from 'react';
+import PropTypes from 'prop-types';
+
+function TaskForm({ form, onSubmit, onChange, submitting }) {
+  return (
+    <form className="task-form" onSubmit={onSubmit}>
+      <input
+        type="text"
+        name="title"
+        placeholder="Título da tarefa"
+        value={form.title}
+        onChange={onChange}
+        required
+      />
+      <textarea
+        name="description"
+        placeholder="Descrição (opcional)"
+        value={form.description}
+        onChange={onChange}
+      />
+      <button type="submit" disabled={submitting}>
+        {submitting ? 'Adicionando...' : 'Adicionar Tarefa'}
+      </button>
+    </form>
+  );
+}
+```
+
+#### TaskList.js (Lista de Tarefas)
+```javascript
+import React from 'react';
+import TaskItem from './TaskItem';
+
+function TaskList({ tasks, onToggle, onDelete, loading }) {
+  if (loading) return <div className="loading">Carregando tarefas...</div>;
+  if (tasks.length === 0) return <div className="empty">Nenhuma tarefa encontrada.</div>;
+  
+  return (
+    <div className="task-list">
+      {tasks.map(task => (
+        <TaskItem
+          key={task.id}
+          task={task}
+          onToggle={onToggle}
+          onDelete={onDelete}
+        />
+      ))}
+    </div>
+  );
+}
+```
+
+### 12.6. Funcionalidades Implementadas
+
+- ✅ **Listagem de tarefas**: Exibe todas as tarefas da API
+- ✅ **Criação de tarefas**: Formulário para adicionar novas tarefas
+- ✅ **Toggle de status**: Marcar/desmarcar tarefas como concluídas
+- ✅ **Exclusão de tarefas**: Remover tarefas da lista
+- ✅ **Estados de loading**: Indicadores visuais durante operações
+- ✅ **Tratamento de erros**: Mensagens de erro amigáveis
+- ✅ **Design responsivo**: Interface adaptável a diferentes telas
+- ✅ **Estatísticas**: Contador de tarefas totais e concluídas
+
+### 12.7. Estilização (TaskApp.css)
+
+```css
+.task-app {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.task-form {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.task-item.completed {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+```
+
+### 12.8. Configuração CORS
+
+Para que o frontend React (porta 3000) se comunique com o backend (porta 8080), é necessário configurar CORS no backend Spring Boot:
+
+```java
+@Configuration
+@EnableWebMvc
+public class CorsConfig implements WebMvcConfigurer {
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/api/**")
+                .allowedOrigins("http://localhost:3000")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")
+                .allowedHeaders("*")
+                .allowCredentials(true);
+    }
+}
+```
+
+### 12.9. Dockerfile para Frontend
+
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+### 12.10. Executando o Frontend
+
+#### Desenvolvimento Local:
+```bash
+cd frontend
+npm install
+npm start
+```
+O frontend estará disponível em `http://localhost:3000`
+
+#### Com Docker:
+```bash
+docker-compose up -d
+```
+
+## 13. Execução da Aplicação
 
 ### Opção 1: Docker Compose
 ```bash
@@ -210,6 +495,8 @@ docker-compose up -d
 ```
 
 ### Opção 2: Execução Local
+
+#### Backend:
 ```bash
 # Windows
 mvnw.cmd spring-boot:run
@@ -218,15 +505,30 @@ mvnw.cmd spring-boot:run
 ./mvnw spring-boot:run
 ```
 
-### Opção 3: IDE
-Execute a classe principal da aplicação diretamente pela IDE.
+#### Frontend:
+```bash
+cd frontend
+npm install
+npm start
+```
 
-## 13. Validações Implementadas
+### Opção 3: IDE
+Execute a classe principal da aplicação diretamente pela IDE para o backend.
+Para o frontend, use `npm start` no terminal da IDE.
+
+## 14. URLs da Aplicação
+
+- **Frontend**: `http://localhost:3000`
+- **Backend API**: `http://localhost:8080/api/tasks`
+- **Swagger UI**: `http://localhost:8080/swagger-ui.html`
+- **OpenAPI Docs**: `http://localhost:8080/api-docs`
+
+## 15. Validações Implementadas
 - **Title**: Obrigatório, máximo 100 caracteres
 - **Description**: Opcional, máximo 500 caracteres
 - **Completed**: Campo booleano com valor padrão false
 
-## 14. Recursos Adicionais
+## 16. Recursos Adicionais
 - ✅ Validação de dados com Bean Validation
 - ✅ Tratamento de erros com ResponseEntity
 - ✅ Documentação automática com Swagger
@@ -234,7 +536,7 @@ Execute a classe principal da aplicação diretamente pela IDE.
 - ✅ Configuração com variáveis de ambiente
 - ✅ Containerização com Docker
 
-## 15. Testando a API
+## 17. Testando a API
 Use os endpoints através de:
 - **Postman** ou **Insomnia**
 - **Swagger UI** (interface web)
@@ -251,5 +553,6 @@ Exemplo de requisição POST:
 
 ---
 
-**Base URL**: `http://localhost:8080/api/tasks`  
+**Frontend**: `http://localhost:3000`  
+**Backend API**: `http://localhost:8080/api/tasks`  
 **Documentação**: `http://localhost:8080/swagger-ui.html`

@@ -1,7 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import type { TaskFormProps } from '../types';
 
-function TaskForm({ form, onSubmit, onChange, submitting = false }) {
+function TaskForm({ form, onSubmit, onChange, submitting = false }: Readonly<TaskFormProps>) {
   return (
     <div className="task-card">
       <h2 className="form-title">Adicionar Nova Tarefa</h2>
@@ -33,7 +32,7 @@ function TaskForm({ form, onSubmit, onChange, submitting = false }) {
             placeholder="Adicione uma descrição (opcional)..."
             value={form.description}
             onChange={onChange}
-            rows="3"
+            rows={3}
             disabled={submitting}
           />
         </div>
@@ -43,21 +42,11 @@ function TaskForm({ form, onSubmit, onChange, submitting = false }) {
           className="submit-button"
           disabled={submitting || !form.title.trim()}
         >
-          {submitting ? "⏳ Adicionando..." : "✨ Adicionar Tarefa"}
+          {submitting ? "Adicionando..." : "Adicionar Tarefa"}
         </button>
       </form>
     </div>
   );
 }
-
-TaskForm.propTypes = {
-  form: PropTypes.shape({
-    title: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired,
-  }).isRequired,
-  onSubmit: PropTypes.func.isRequired,
-  onChange: PropTypes.func.isRequired,
-  submitting: PropTypes.bool,
-};
 
 export default TaskForm;

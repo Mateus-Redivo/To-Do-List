@@ -1,20 +1,21 @@
 import { useState, useEffect } from 'react';
 import { API_URL, MESSAGES } from '../utils/constants';
+import type { Task, TaskFormData, UseTasksReturn } from '../types';
 
-export function useTasks() {
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
+export function useTasks(): UseTasksReturn {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState<boolean>(false);
 
   // Função para carregar tarefas
-  async function fetchTasks() {
+  async function fetchTasks(): Promise<void> { 
     setLoading(true);
     setError(null);
     try {
       const response = await fetch(API_URL);
       if (!response.ok) throw new Error('Erro ao carregar tarefas');
-      const data = await response.json();
+      const data: Task[] = await response.json();
       setTasks(data);
     } catch (err) {
       setError(MESSAGES.ERROR_LOAD);
@@ -25,7 +26,7 @@ export function useTasks() {
   }
 
   // Função para criar nova tarefa
-  async function createTask(taskData) {
+  async function createTask(taskData: TaskFormData): Promise<boolean> {
     if (!taskData.title.trim()) return false;
     
     setSubmitting(true);
@@ -50,7 +51,7 @@ export function useTasks() {
   }
 
   // Função para alternar status da tarefa
-  async function toggleTask(id) {
+  async function toggleTask(id: number): Promise<void> {
     try {
       const response = await fetch(`${API_URL}/${id}/toggle`, { method: "PATCH" });
       if (!response.ok) throw new Error('Erro ao atualizar tarefa');
@@ -62,7 +63,7 @@ export function useTasks() {
   }
 
   // Função para deletar tarefa
-  async function deleteTask(id) {
+  async function deleteTask(id: number): Promise<void> {
     try {
       const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
       if (!response.ok) throw new Error('Erro ao deletar tarefa');
