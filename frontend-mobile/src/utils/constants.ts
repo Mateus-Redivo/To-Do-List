@@ -3,10 +3,12 @@
  * Centraliza URLs, mensagens e configurações
  */
 
+import Constants from 'expo-constants';
 import type { Messages } from '../types';
 
-// URL base da API
-export const API_URL = "{API_URL}:8080/api/tasks";
+// URL base da API (configurada em app.json)
+const apiUrl = Constants.expoConfig?.extra?.apiUrl || 'http://10.0.2.2:8080';
+export const API_URL = `${apiUrl}/api/tasks`;
 
 // Mensagens do sistema
 export const MESSAGES: Messages = {
