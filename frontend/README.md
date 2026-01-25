@@ -108,7 +108,8 @@ Sua API deve implementar os seguintes endpoints:
 
 - **GET /api/tasks**: Retorna todas as tarefas
 - **POST /api/tasks**: Cria uma nova tarefa
-- **PUT /api/tasks/:id**: Atualiza uma tarefa existente
+- **PUT /api/tasks/:id**: Atualiza uma tarefa existente (título e descrição)
+- **PATCH /api/tasks/:id/toggle**: Alterna o status de conclusão da tarefa
 - **DELETE /api/tasks/:id**: Remove uma tarefa
 
 ### Formato de Dados
@@ -168,8 +169,10 @@ export const MESSAGES = {
 ### 3. Criar Hook Personalizado
 
 Implemente a lógica de gerenciamento de estado em `src/hooks/useTasks.ts`:
+
 - Gerenciar o estado das tarefas
-- Implementar operações CRUD
+- Implementar operações CRUD (Create, Read, Update, Delete)
+- Função `updateTask()` para editar tarefas existentes
 - Tratar erros e estados de carregamento
 
 ### 4. Desenvolver Componentes
@@ -179,7 +182,7 @@ Desenvolva os componentes nesta ordem sugerida:
 1. **ErrorMessage.tsx**: Para exibir mensagens de erro
 2. **TaskHeader.tsx**: Cabeçalho da aplicação
 3. **TaskForm.tsx**: Formulário para criar novas tarefas
-4. **TaskItem.tsx**: Componente para cada tarefa individual
+4. **TaskItem.tsx**: Componente para cada tarefa individual com edição inline
 5. **TaskList.tsx**: Lista que renderiza todas as tarefas
 6. **TaskFooter.tsx**: Área com estatísticas e filtros
 7. **TaskApp.tsx**: Componente principal que integra tudo

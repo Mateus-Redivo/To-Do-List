@@ -3,6 +3,7 @@
 Este guia detalha o passo a passo para criar uma API RESTful utilizando Spring Boot, seguindo a estrutura do projeto implementado.
 
 ## 1. Criação do Projeto
+
 - Acesse o [Spring Initializr](https://start.spring.io/).
 - Selecione as opções:
   - Project: Maven Project
@@ -52,6 +53,7 @@ Este guia detalha o passo a passo para criar uma API RESTful utilizando Spring B
   Dependência comum para SpringDoc OpenAPI.
 
 ## 2. Estrutura de Pastas Implementada
+
 ```
 src/main/java/com/rev/revisao/
   controller/
@@ -71,7 +73,9 @@ src/main/resources/
 ```
 
 ## 3. Configuração do Banco de Dados
+
 No arquivo `application.properties`:
+
 ```properties
 spring.application.name=revisao
 
@@ -95,6 +99,7 @@ springdoc.swagger-ui.operationsSorter=method
 ```
 
 ## 4. Modelo (Entidade Task)
+
 ```java
 @Entity
 @Table(name = "tasks")
@@ -117,6 +122,7 @@ public class Task {
 ```
 
 ## 5. DTO (Data Transfer Object)
+
 ```java
 public class TaskDTO {
     @JsonProperty("id")
@@ -139,7 +145,9 @@ public class TaskDTO {
 ```
 
 ## 6. Mapper
+
 Implementação de um mapper para conversão entre Entity e DTO:
+
 ```java
 @Component
 public class TaskMapper {
@@ -150,6 +158,7 @@ public class TaskMapper {
 ```
 
 ## 7. Repository
+
 ```java
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
@@ -157,6 +166,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 ```
 
 ## 8. Service
+
 ```java
 @Service
 public class TaskService {
@@ -171,6 +181,7 @@ public class TaskService {
 ```
 
 ## 9. Controller - Endpoints REST
+
 ```java
 @RestController
 @RequestMapping("/api/tasks")
@@ -184,21 +195,24 @@ public class TaskController {
 }
 ```
 
-### Endpoints Disponíveis:
-- **GET** `/api/tasks` - Lista todas as tarefas
+### Endpoints Disponíveis
+
 - **GET** `/api/tasks/{id}` - Busca tarefa específica
 - **POST** `/api/tasks` - Cria nova tarefa
-- **PUT** `/api/tasks/{id}` - Atualiza tarefa completa
+- **PUT** `/api/tasks/{id}` - Atualiza tarefa completa (título e descrição)
 - **DELETE** `/api/tasks/{id}` - Remove tarefa
 - **PATCH** `/api/tasks/{id}/toggle` - Alterna status completed da tarefa
 
 ## 10. Docker e Containerização
+
 O projeto inclui configuração Docker com `docker-compose.yml`:
+
 - **MySQL**: Porta 3406 (container) → 3306 (host)
 - **Backend**: Porta 8080
 - Variáveis de ambiente configuradas para flexibilidade
 
 ## 11. Documentação da API
+
 - **Swagger UI**: Disponível em `http://localhost:8080/swagger-ui.html`
 - **OpenAPI Docs**: Disponível em `http://localhost:8080/api-docs`
 
@@ -207,7 +221,8 @@ O projeto inclui configuração Docker com `docker-compose.yml`:
 Este projeto inclui um frontend desenvolvido em React que consome a API REST do backend.
 
 ### 12.1. Estrutura do Frontend
-```
+
+```plaintext
 frontend/
   public/
     index.html
@@ -222,7 +237,7 @@ frontend/
       TaskHeader.js     # Cabeçalho da aplicação
       TaskForm.js       # Formulário para criar tarefas
       TaskList.js       # Lista de tarefas
-      TaskItem.js       # Item individual da tarefa
+      TaskItem.js       # Item individual da tarefa com edição inline
       TaskFooter.js     # Rodapé com estatísticas
       ErrorMessage.js   # Componente de erro
     hooks/
@@ -234,17 +249,20 @@ frontend/
 ### 12.2. Criação do Projeto Frontend
 
 #### Passo 1: Criar o projeto React
+
 ```bash
 npx create-react-app frontend
 cd frontend
 ```
 
 #### Passo 2: Instalar dependências adicionais
+
 ```bash
 npm install prop-types
 ```
 
 #### Passo 3: Configurar as dependências no package.json
+
 ```json
 {
   "name": "frontend",
@@ -273,6 +291,7 @@ npm install prop-types
 ### 12.3. Configuração da API
 
 #### constants.js
+
 ```javascript
 export const API_URL = 'http://localhost:8080/api/tasks';
 
@@ -304,6 +323,7 @@ export function useTasks() {
   // Funções implementadas:
   // - fetchTasks(): Carrega todas as tarefas
   // - createTask(taskData): Cria nova tarefa
+  // - updateTask(id, taskData): Atualiza tarefa existente
   // - toggleTask(id): Alterna status da tarefa
   // - deleteTask(id): Remove tarefa
   
@@ -317,6 +337,7 @@ export function useTasks() {
     error,
     submitting,
     createTask,
+    updateTask,
     toggleTask,
     deleteTask
   };
@@ -326,6 +347,7 @@ export function useTasks() {
 ### 12.5. Componentes Principais
 
 #### TaskApp.js (Componente Principal)
+
 ```javascript
 import React, { useState } from "react";
 import TaskHeader from './components/TaskHeader';
@@ -337,13 +359,15 @@ import { useTasks } from './hooks/useTasks';
 
 function TaskApp() {
   const [form, setForm] = useState({ title: "", description: "" });
-  const { tasks, loading, error, submitting, createTask, toggleTask, deleteTask } = useTasks();
+  const { tasks, loading, error, submitting, createTask, updateTask, toggleTask, deleteTask } = useTasks();
   
   // Lógica de manipulação de formulário e eventos
+  // handleEdit(id, taskData): Atualiza tarefa existente
 }
 ```
 
 #### TaskForm.js (Formulário de Criação)
+
 ```javascript
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -374,6 +398,7 @@ function TaskForm({ form, onSubmit, onChange, submitting }) {
 ```
 
 #### TaskList.js (Lista de Tarefas)
+
 ```javascript
 import React from 'react';
 import TaskItem from './TaskItem';
@@ -401,6 +426,7 @@ function TaskList({ tasks, onToggle, onDelete, loading }) {
 
 - ✅ **Listagem de tarefas**: Exibe todas as tarefas da API
 - ✅ **Criação de tarefas**: Formulário para adicionar novas tarefas
+- ✅ **Edição de tarefas**: Editar título e descrição de tarefas existentes
 - ✅ **Toggle de status**: Marcar/desmarcar tarefas como concluídas
 - ✅ **Exclusão de tarefas**: Remover tarefas da lista
 - ✅ **Estados de loading**: Indicadores visuais durante operações
@@ -474,15 +500,18 @@ CMD ["npm", "start"]
 
 ### 12.10. Executando o Frontend
 
-#### Desenvolvimento Local:
+#### Desenvolvimento Local
+
 ```bash
 cd frontend
 npm install
 npm start
 ```
+
 O frontend estará disponível em `http://localhost:3000`
 
-#### Com Docker:
+#### Com Docker
+
 ```bash
 docker-compose up -d
 ```
@@ -490,13 +519,15 @@ docker-compose up -d
 ## 13. Execução da Aplicação
 
 ### Opção 1: Docker Compose
+
 ```bash
 docker-compose up -d
 ```
 
 ### Opção 2: Execução Local
 
-#### Backend:
+#### Backend
+
 ```bash
 # Windows
 mvnw.cmd spring-boot:run
@@ -505,7 +536,8 @@ mvnw.cmd spring-boot:run
 ./mvnw spring-boot:run
 ```
 
-#### Frontend:
+#### Frontend
+
 ```bash
 cd frontend
 npm install
@@ -513,6 +545,7 @@ npm start
 ```
 
 ### Opção 3: IDE
+
 Execute a classe principal da aplicação diretamente pela IDE para o backend.
 Para o frontend, use `npm start` no terminal da IDE.
 
@@ -524,11 +557,13 @@ Para o frontend, use `npm start` no terminal da IDE.
 - **OpenAPI Docs**: `http://localhost:8080/api-docs`
 
 ## 15. Validações Implementadas
+
 - **Title**: Obrigatório, máximo 100 caracteres
 - **Description**: Opcional, máximo 500 caracteres
 - **Completed**: Campo booleano com valor padrão false
 
 ## 16. Recursos Adicionais
+
 - ✅ Validação de dados com Bean Validation
 - ✅ Tratamento de erros com ResponseEntity
 - ✅ Documentação automática com Swagger
@@ -537,12 +572,15 @@ Para o frontend, use `npm start` no terminal da IDE.
 - ✅ Containerização com Docker
 
 ## 17. Testando a API
+
 Use os endpoints através de:
+
 - **Postman** ou **Insomnia**
 - **Swagger UI** (interface web)
 - **cURL** ou ferramentas similares
 
 Exemplo de requisição POST:
+
 ```json
 {
   "title": "Estudar Spring Boot",

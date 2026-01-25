@@ -50,6 +50,31 @@ export function useTasks(): UseTasksReturn {
     }
   }
 
+  // Função para atualizar tarefa existente
+  async function updateTask(id: number, taskData: TaskFormData): Promise<boolean> {
+    if (!taskData.title.trim()) return false;
+    
+    setSubmitting(true);
+    setError(null);
+    try {
+      const response = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(taskData),
+      });
+      if (!response.ok) throw new Error('Erro ao atualizar tarefa');
+      
+      await fetchTasks();
+      return true;
+    } catch (err) {
+      setError(MESSAGES.ERROR_UPDATE);
+      console.error('Erro:', err);
+      return false;
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   // Função para alternar status da tarefa
   async function toggleTask(id: number): Promise<void> {
     try {
@@ -85,6 +110,7 @@ export function useTasks(): UseTasksReturn {
     error,
     submitting,
     createTask,
+    updateTask,
     toggleTask,
     deleteTask,
     fetchTasks

@@ -22,6 +22,7 @@ function TaskApp() {
     error, 
     submitting, 
     createTask, 
+    updateTask,
     toggleTask, 
     deleteTask 
   } = useTasks();
@@ -36,6 +37,10 @@ function TaskApp() {
     if (success) {
       setForm({ title: "", description: "" });
     }
+  }
+
+  async function handleEdit(id: number, taskData: TaskFormData) {
+    await updateTask(id, taskData);
   }
 
   return (
@@ -57,6 +62,7 @@ function TaskApp() {
           loading={loading}
           onToggle={toggleTask}
           onDelete={deleteTask}
+          onEdit={handleEdit}
         />
         
         <TaskFooter />
