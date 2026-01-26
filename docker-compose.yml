@@ -21,8 +21,8 @@ services:
       interval: 10s
       start_period: 40s
 
-  # Para rodar os testes do backend com o container de teste:
-  # docker-compose --profile test run --rm backend-test-db
+  # Para rodar os testes do backend:
+  # docker-compose --profile test up --exit-code-from backend-tests backend-tests
   backend-test-db:
     image: mysql:8.0
     container_name: todolist_backend_test_db
@@ -68,6 +68,26 @@ services:
       retries: 10
       interval: 10s
       start_period: 40s
+
+  # Serviço para rodar testes automaticamente
+  # Uso: docker-compose --profile test run --rm backend-tests
+  # (inicia o banco, aguarda health check, roda testes e remove o container)
+  backend-tests:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.test
+    container_name: todolist_backend_tests
+    depends_on:
+      backend-test-db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://backend-test-db:3306/${MYSQL_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    networks:
+      - api_network
+    profiles:
+      - test
 
   frontend:
     build:

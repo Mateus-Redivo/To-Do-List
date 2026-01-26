@@ -3,6 +3,7 @@ package com.todolist.api.repository;
 import com.todolist.api.model.Task;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
@@ -22,13 +23,16 @@ import static org.junit.jupiter.api.Assertions.*;
  * - existsById(): Verificar se existe
  * 
  * @DataJpaTest: Anotação especial para testes de repository
- * - Configura um banco H2 em memória para testes
+ * - Configura um banco em memória para testes
  * - Aplica transações que são revertidas após cada teste
  * - Não carrega todo o contexto Spring (mais rápido)
+ * 
+ * @AutoConfigureTestDatabase: Usa o banco real ao invés de H2 embarcado
  * 
  * @Autowired: Injeta automaticamente o repository real (não é mock)
  */
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @SuppressWarnings("null")
 class TaskRepositoryTest {
 

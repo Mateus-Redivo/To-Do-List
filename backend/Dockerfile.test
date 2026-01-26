@@ -1,0 +1,18 @@
+# Dockerfile para rodar testes
+FROM maven:3.9.6-eclipse-temurin-21
+
+WORKDIR /app
+
+# Copiar arquivos do projeto
+COPY pom.xml .
+COPY src ./src
+COPY scripts/wait-for-mysql.sh ./wait-for-mysql.sh
+
+# Ajustar permissões do script
+RUN sed -i 's/\r$//' wait-for-mysql.sh && chmod +x wait-for-mysql.sh
+
+# Instalar netcat para o wait script
+RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
+
+# Comando para rodar os testes
+ENTRYPOINT ["./wait-for-mysql.sh", "backend-test-db", "3306", "mvn", "test"]

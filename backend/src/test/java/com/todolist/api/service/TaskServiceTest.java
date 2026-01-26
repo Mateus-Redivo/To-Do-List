@@ -177,10 +177,6 @@ class TaskServiceTest {
         when(taskRepository.save(any(Task.class))).thenReturn(task);
         when(taskMapper.convertToDTO(any(Task.class))).thenReturn(updatedDTO);
 
-        when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
-        when(taskRepository.save(any(Task.class))).thenReturn(task);
-        when(taskMapper.convertToDTO(any(Task.class))).thenReturn(updatedDTO);
-
         // ACT
         Optional<TaskDTO> result = taskService.updateTask(1L, updatedDTO);
 
