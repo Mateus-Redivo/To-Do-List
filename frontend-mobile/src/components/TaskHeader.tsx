@@ -24,13 +24,15 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xl * 1.5,
   },
   textHeader: {
-    color: colors.text,
+    color: colors.white,
     fontSize: typography.sizes.xxl,
+    fontWeight: typography.weights.bold,
   },
   textSubtitle: {
-    color: colors.textSecondary,
+    color: colors.white,
     fontSize: typography.sizes.md,
     marginTop: spacing.sm,
+    opacity: 0.9,
   },
 });
 

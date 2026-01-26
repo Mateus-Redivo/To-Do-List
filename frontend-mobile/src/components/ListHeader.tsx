@@ -5,6 +5,7 @@
 
 import { View, Text, StyleSheet } from 'react-native';
 import type { ListHeaderProps } from '../types';
+import { colors, spacing, typography } from '../styles/theme';
 
 export const ListHeader = ({ tasksCount, completedCount }: ListHeaderProps) => (
   <View style={styles.header}>
@@ -20,14 +21,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   title: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.weights.bold,
+    color: colors.text,
   },
   count: {
-    fontSize: 14,
-    color: '#6b7280',
+    fontSize: typography.sizes.sm,
+    color: colors.textSecondary,
   },
 });

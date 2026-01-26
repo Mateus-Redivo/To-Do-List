@@ -4,12 +4,12 @@
  */
 
 import { View, Text, StyleSheet } from "react-native";
-import { colors, spacing } from '../styles/theme';
+import { colors, spacing, typography } from '../styles/theme';
 
 function TaskFooter() {
   return (
     <View style={styles.taskFooter}>
-      <Text>Feito para organizar suas tarefas</Text>
+      <Text style={styles.text}>Feito para organizar suas tarefas</Text>
     </View>
   );
 }
@@ -20,6 +20,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.background,
+  },
+  text: {
+    fontSize: typography.sizes.sm,
+    color: colors.textSecondary,
   },
 });
 

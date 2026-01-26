@@ -25,6 +25,8 @@ export interface TaskFormProps {
   onSubmit: () => void | Promise<void>;
   onChange: (field: string, value: string) => void;
   submitting?: boolean;
+  editingTaskId?: number | null;
+  onCancelEdit?: () => void;
 }
 
 // Props do componente de lista de tarefas
@@ -33,7 +35,7 @@ export interface TaskListProps {
   loading: boolean;
   onToggle: (id: number) => void;
   onDelete: (id: number) => void;
-  onEdit: (id: number, taskData: TaskFormData) => void;
+  onEdit: (id: number) => void;
 }
 
 // Props do componente individual de tarefa
@@ -41,7 +43,7 @@ export interface TaskItemProps {
   task: Task;
   onToggle: (id: number) => void;
   onDelete: (id: number) => void;
-  onEdit: (id: number, taskData: TaskFormData) => void;
+  onEdit: (id: number) => void;
 }
 
 // Props do cabeçalho da lista

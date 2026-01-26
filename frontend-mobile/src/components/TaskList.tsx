@@ -9,6 +9,7 @@ import { ListHeader } from './ListHeader';
 import { ListEmpty } from './ListEmpty';
 import { MESSAGES } from '../utils/constants';
 import type { TaskListProps } from '../types';
+import { colors, spacing, typography } from '../styles/theme';
 
 // Cria o componente de cabeçalho da lista
 const createListHeader = (tasksCount: number, completedCount: number) => (
@@ -49,6 +50,8 @@ function TaskList({ tasks, loading, onToggle, onDelete, onEdit }: Readonly<TaskL
       ListHeaderComponent={createListHeader(tasks.length, completedCount)} // Cabeçalho com contador
       ListEmptyComponent={createListEmpty()} // Exibido quando não há tarefas
       showsVerticalScrollIndicator={false} // Remove barra de rolagem
+      keyboardShouldPersistTaps='handled' // Permite tocar nos botões mesmo com teclado aberto
+      keyboardDismissMode='on-drag' // Fecha teclado ao arrastar a lista
     />
   );
 }
@@ -59,20 +62,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  count: {
-    fontSize: 14,
-    color: '#6b7280',
-  },
   // Container centralizado para loading
   loadingContainer: {
     flex: 1,
@@ -80,23 +69,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: '#6b7280',
-  },
-  emptyState: {
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  emptyDescription: {
-    fontSize: 14,
-    color: '#6b7280',
-    textAlign: 'center',
+    marginTop: spacing.md,
+    fontSize: typography.sizes.sm,
+    color: colors.textSecondary,
   },
 });
 

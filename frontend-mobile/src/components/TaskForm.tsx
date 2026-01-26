@@ -5,12 +5,22 @@
 
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import type { TaskFormProps } from '../types';
+import { colors, spacing, typography, borderRadius, shadows } from '../styles/theme';
 
-function TaskForm({ form, onSubmit, onChange, submitting = false }: Readonly<TaskFormProps>) {
+function TaskForm({ 
+  form, 
+  onSubmit, 
+  onChange, 
+  submitting = false,
+  editingTaskId = null,
+  onCancelEdit
+}: Readonly<TaskFormProps>) {
   return (
     // Container principal do formulário com sombra
     <View style={styles.container}>
-      <Text style={styles.title}>Adicionar Nova Tarefa</Text>
+      <Text style={styles.title}>
+        {editingTaskId === null ? 'Adicionar Nova Tarefa' : 'Editar Tarefa'}
+      </Text>
       
       {/* Campo de título (obrigatório) */}
       <View style={styles.formGroup}>
@@ -38,16 +48,39 @@ function TaskForm({ form, onSubmit, onChange, submitting = false }: Readonly<Tas
         />
       </View>
       
-      {/* Botão de envio - desabilitado se título vazio ou enviando */}
-      <TouchableOpacity
-        style={[styles.button, (submitting || !form.title.trim()) && styles.buttonDisabled]}
-        onPress={onSubmit}
-        disabled={submitting || !form.title.trim()} // Validação
-      >
-        <Text style={styles.buttonText}>
-          {submitting ? "Adicionando..." : "Adicionar Tarefa"}
-        </Text>
-      </TouchableOpacity>
+      {/* Botões de ação */}
+      {editingTaskId === null ? (
+        // Modo criação - mostra apenas botão Adicionar
+        <TouchableOpacity
+          style={[styles.button, (submitting || !form.title.trim()) && styles.buttonDisabled]}
+          onPress={onSubmit}
+          disabled={submitting || !form.title.trim()}
+        >
+          <Text style={styles.buttonText}>
+            {submitting ? "Adicionando..." : "Adicionar Tarefa"}
+          </Text>
+        </TouchableOpacity>
+      ) : (
+        // Modo edição - mostra botões Salvar e Cancelar lado a lado
+        <View style={styles.buttonRow}>
+          <TouchableOpacity
+            style={[styles.button, styles.cancelButton]}
+            onPress={onCancelEdit}
+          >
+            <Text style={styles.buttonText}>Cancelar</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={[styles.button, styles.saveButton, (submitting || !form.title.trim()) && styles.buttonDisabled]}
+            onPress={onSubmit}
+            disabled={submitting || !form.title.trim()}
+          >
+            <Text style={styles.buttonText}>
+              {submitting ? "Salvando..." : "Salvar Alterações"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
@@ -56,38 +89,36 @@ function TaskForm({ form, onSubmit, onChange, submitting = false }: Readonly<Tas
 const styles = StyleSheet.create({
   // Card branco com sombra
   container: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3, // Sombra no Android
+    backgroundColor: colors.surface,
+    padding: spacing.lg,
+    borderRadius: borderRadius.lg,
+    marginBottom: spacing.lg,
+    ...shadows.md,
   },
   title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.weights.bold,
+    marginBottom: spacing.lg,
+    color: colors.text,
   },
   formGroup: {
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   // Label dos campos
   label: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 8,
-    color: '#333',
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.semibold,
+    marginBottom: spacing.sm,
+    color: colors.gray700,
   },
   // Campo de entrada padrão
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 6,
-    padding: 12,
-    fontSize: 16,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    fontSize: typography.sizes.md,
+    color: colors.text,
   },
   // Estilo adicional para área de texto
   textarea: {
@@ -96,19 +127,34 @@ const styles = StyleSheet.create({
   },
   // Botão principal azul
   button: {
-    backgroundColor: '#3b82f6',
-    padding: 14,
-    borderRadius: 6,
+    backgroundColor: colors.primary,
+    padding: spacing.sm + spacing.xs,
+    borderRadius: borderRadius.md,
     alignItems: 'center',
   },
   // Botão desabilitado (mais claro)
   buttonDisabled: {
-    backgroundColor: '#93c5fd',
+    backgroundColor: colors.primaryLight,
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: colors.white,
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.semibold,
+  },
+  // Container para botões lado a lado
+  buttonRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  // Botão de cancelar (cinza)
+  cancelButton: {
+    flex: 1,
+    backgroundColor: colors.gray500,
+  },
+  // Botão de salvar (azul)
+  saveButton: {
+    flex: 1,
+    backgroundColor: colors.primary,
   },
 });
 

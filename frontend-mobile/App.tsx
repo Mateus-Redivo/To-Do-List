@@ -10,17 +10,42 @@ import type { TaskFormData } from './src/types';
 
 export default function App() {
   const [form, setForm] = useState<TaskFormData>({ title: "", description: "" });
-  const { tasks, loading, error, submitting, createTask, toggleTask, deleteTask } = useTasks();
+  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
+  const { tasks, loading, error, submitting, createTask, updateTask, toggleTask, deleteTask } = useTasks();
 
   function handleChange(field: string, value: string) {
     setForm({ ...form, [field]: value });
   }
 
   async function handleSubmit() {
-    const success = await createTask(form);
+    let success = false;
+    
+    if (editingTaskId === null) {
+      success = await createTask(form);
+    } else {
+      success = await updateTask(editingTaskId, form);
+    }
+    
     if (success) {
       setForm({ title: "", description: "" });
+      setEditingTaskId(null);
     }
+  }
+
+  function handleStartEdit(taskId: number) {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      setForm({ 
+        title: task.title || "", 
+        description: task.description || "" 
+      });
+      setEditingTaskId(taskId);
+    }
+  }
+
+  function handleCancelEdit() {
+    setForm({ title: "", description: "" });
+    setEditingTaskId(null);
   }
 
   return (
@@ -37,6 +62,8 @@ export default function App() {
             onSubmit={handleSubmit}
             onChange={handleChange}
             submitting={submitting}
+            editingTaskId={editingTaskId}
+            onCancelEdit={handleCancelEdit}
           />
           
           <TaskList
@@ -44,6 +71,7 @@ export default function App() {
             loading={loading}
             onToggle={toggleTask}
             onDelete={deleteTask}
+            onEdit={handleStartEdit}
           />
         </View>
       </SafeAreaView>

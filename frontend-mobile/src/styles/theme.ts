@@ -37,7 +37,7 @@ export const colors = {
   // Semantic
   background: '#f3f4f6',
   surface: '#ffffff',
-  text: '#111827',
+  text: '#21cf12',
   textSecondary: '#6b7280',
   border: '#e5e7eb',
 };

@@ -6,6 +6,7 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { MESSAGES } from '../utils/constants';
 import type { ListEmptyProps } from '../types';
+import { colors, spacing, typography } from '../styles/theme';
 
 export const ListEmpty = ({ title, description }: ListEmptyProps) => (
   // Container centralizado para estado vazio
@@ -22,16 +23,17 @@ export const ListEmpty = ({ title, description }: ListEmptyProps) => (
 const styles = StyleSheet.create({
   emptyState: {
     alignItems: 'center',
-    padding: 32,
+    padding: spacing.xxxl,
   },
   emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.bold,
+    marginBottom: spacing.sm,
+    color: colors.text,
   },
   emptyDescription: {
-    fontSize: 14,
-    color: '#6b7280',
+    fontSize: typography.sizes.sm,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
 });
