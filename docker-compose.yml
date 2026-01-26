@@ -1,7 +1,7 @@
 services:
-  mysql:
+  backend-db:
     image: mysql:8.0
-    container_name: api_rev
+    container_name: todolist_backend_db
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
@@ -21,17 +21,41 @@ services:
       interval: 10s
       start_period: 40s
 
+  # Para rodar os testes do backend com o container de teste:
+  # docker-compose --profile test run --rm backend-test-db
+  backend-test-db:
+    image: mysql:8.0
+    container_name: todolist_backend_test_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3307:3306"
+    networks:
+      - api_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
+      interval: 10s
+      start_period: 40s
+    profiles:
+      - test
+
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: revisao_backend
+    container_name: todolist_backend_api
     restart: unless-stopped
     depends_on:
-      mysql:
+      backend-db:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}
+      SPRING_DATASOURCE_URL: jdbc:mysql://backend-db:3306/${MYSQL_DATABASE}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
     ports:
@@ -49,7 +73,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: revisao_frontend
+    container_name: todolist_frontend_web
     restart: unless-stopped
     depends_on:
       backend:

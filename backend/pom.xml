@@ -8,11 +8,11 @@
 		<version>3.5.10</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.rev</groupId>
-	<artifactId>revisao</artifactId>
+	<groupId>com.todolist</groupId>
+	<artifactId>todolist-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>revisao</name>
-	<description>Demo project for Spring Boot</description>
+	<name>todolist-api</name>
+	<description>RESTful API for To-Do List management</description>
 	<url/>
 	<licenses>
 		<license/>
