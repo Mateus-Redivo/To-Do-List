@@ -161,8 +161,12 @@ export const API_URL = "http://localhost:8080/api/tasks";
 export const MESSAGES = {
   LOADING: "Carregando tarefas...",
   EMPTY_TITLE: "Nenhuma tarefa encontrada",
-  ERROR_LOAD: "Erro ao carregar tarefas.",
-  // Adicione outras mensagens conforme necessário
+  EMPTY_DESCRIPTION: "Adicione sua primeira tarefa acima para começar!",
+  ERROR_LOAD: "Erro ao carregar tarefas. Verifique se o servidor está rodando.",
+  ERROR_CREATE: "Erro ao adicionar tarefa. Tente novamente.",
+  ERROR_UPDATE: "Erro ao atualizar tarefa. Tente novamente.",
+  ERROR_DELETE: "Erro ao remover tarefa. Tente novamente.",
+  ERROR_EMPTY_TITLE: "O título da tarefa é obrigatório."
 };
 ```
 
@@ -174,6 +178,8 @@ Implemente a lógica de gerenciamento de estado em `src/hooks/useTasks.ts`:
 - Implementar operações CRUD (Create, Read, Update, Delete)
 - Função `updateTask()` para editar tarefas existentes
 - Tratar erros e estados de carregamento
+- Validar dados antes de enviar para a API (ex: título obrigatório)
+- Exibir mensagens de erro apropriadas para cada situação
 
 ### 4. Desenvolver Componentes
 
@@ -196,6 +202,35 @@ interface Task {
   id: number;
   title: string;
   description: string;
+  completed: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+```
+
+## Validação e Mensagens de Erro
+
+A aplicação implementa validação de dados e feedback ao usuário:
+
+### Validação de Título
+
+O campo título é **obrigatório** tanto ao criar quanto ao editar tarefas:
+
+- **Ao criar nova tarefa**: O botão "Adicionar Tarefa" fica desabilitado se o título estiver vazio. Se tentar submeter, a mensagem de erro global é exibida.
+
+- **Ao editar tarefa existente**: Se tentar salvar uma edição sem título, uma mensagem de erro aparece diretamente no formulário de edição inline.
+
+### Mensagens de Erro Implementadas
+
+- **ERROR_LOAD**: Exibida quando falha ao carregar as tarefas do servidor
+- **ERROR_CREATE**: Exibida quando falha ao criar uma nova tarefa
+- **ERROR_UPDATE**: Exibida quando falha ao atualizar uma tarefa existente
+- **ERROR_DELETE**: Exibida quando falha ao deletar uma tarefa
+- **ERROR_EMPTY_TITLE**: Exibida quando tenta criar ou editar uma tarefa sem título
+
+### Componente ErrorMessage
+
+O componente `ErrorMessage.tsx` exibe erros globais no topo da aplicação, logo abaixo do cabeçalho. Erros de validação no formulário de edição são exibidos localmente dentro do próprio item.
   completed: boolean;
   createdAt?: string;
   updatedAt?: string;

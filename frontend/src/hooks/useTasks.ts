@@ -27,7 +27,10 @@ export function useTasks(): UseTasksReturn {
 
   // Função para criar nova tarefa
   async function createTask(taskData: TaskFormData): Promise<boolean> {
-    if (!taskData.title.trim()) return false;
+    if (!taskData.title.trim()) {
+      setError(MESSAGES.ERROR_EMPTY_TITLE);
+      return false;
+    }
     
     setSubmitting(true);
     setError(null);
@@ -52,7 +55,10 @@ export function useTasks(): UseTasksReturn {
 
   // Função para atualizar tarefa existente
   async function updateTask(id: number, taskData: TaskFormData): Promise<boolean> {
-    if (!taskData.title.trim()) return false;
+    if (!taskData.title.trim()) {
+      setError(MESSAGES.ERROR_EMPTY_TITLE);
+      return false;
+    }
     
     setSubmitting(true);
     setError(null);

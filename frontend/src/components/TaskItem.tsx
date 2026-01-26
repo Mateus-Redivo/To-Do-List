@@ -7,27 +7,47 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: Readonly<TaskItemProps>)
     title: task.title,
     description: task.description
   });
+  const [editError, setEditError] = useState<string>('');
 
   function handleEdit() {
     setIsEditing(true);
+    setEditError('');
   }
 
   function handleCancel() {
     setIsEditing(false);
     setEditForm({ title: task.title, description: task.description });
+    setEditError('');
   }
 
   async function handleSave() {
-    if (editForm.title.trim()) {
-      onEdit(task.id, editForm);
-      setIsEditing(false);
+    if (!editForm.title.trim()) {
+      setEditError('O título da tarefa é obrigatório.');
+      return;
     }
+    
+    setEditError('');
+    onEdit(task.id, editForm);
+    setIsEditing(false);
   }
 
   if (isEditing) {
     return (
       <div className="task-item editing">
         <div className="edit-form">
+          {editError && (
+            <div style={{ 
+              color: '#ef4444', 
+              fontSize: '14px', 
+              marginBottom: '8px',
+              padding: '8px',
+              backgroundColor: '#fee2e2',
+              borderRadius: '4px',
+              border: '1px solid #fecaca'
+            }}>
+              {editError}
+            </div>
+          )}
           <input
             type="text"
             value={editForm.title}

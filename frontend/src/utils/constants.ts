@@ -9,5 +9,6 @@ export const MESSAGES: Messages = {
   ERROR_LOAD: "Erro ao carregar tarefas. Verifique se o servidor está rodando.",
   ERROR_CREATE: "Erro ao adicionar tarefa. Tente novamente.",
   ERROR_UPDATE: "Erro ao atualizar tarefa. Tente novamente.",
-  ERROR_DELETE: "Erro ao remover tarefa. Tente novamente."
+  ERROR_DELETE: "Erro ao remover tarefa. Tente novamente.",
+  ERROR_EMPTY_TITLE: "O título da tarefa é obrigatório."
 };

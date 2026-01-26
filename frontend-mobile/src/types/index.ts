@@ -79,5 +79,6 @@ export interface Messages {
   ERROR_CREATE: string;
   ERROR_UPDATE: string;
   ERROR_DELETE: string;
+  ERROR_EMPTY_TITLE: string;
 }
 

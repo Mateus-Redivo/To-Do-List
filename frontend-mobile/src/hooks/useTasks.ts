@@ -33,7 +33,10 @@ export function useTasks(): UseTasksReturn {
 
   // Cria uma nova tarefa
   async function createTask(taskData: TaskFormData): Promise<boolean> {
-    if (!taskData.title.trim()) return false; // Valida título não vazio
+    if (!taskData.title.trim()) {
+      setError(MESSAGES.ERROR_EMPTY_TITLE);
+      return false;
+    }
     
     setSubmitting(true); // Indica envio em andamento
     setError(null);
