@@ -18,7 +18,7 @@ const createListHeader = (tasksCount: number, completedCount: number) => (
 // Cria o componente de lista vazia
 const createListEmpty = () => <ListEmpty />;
 
-function TaskList({ tasks, loading, onToggle, onDelete }: Readonly<TaskListProps>) {
+function TaskList({ tasks, loading, onToggle, onDelete, onEdit }: Readonly<TaskListProps>) {
   // Calcula quantas tarefas estão concluídas
   const completedCount = tasks.filter(task => task.completed).length;
 
@@ -43,6 +43,7 @@ function TaskList({ tasks, loading, onToggle, onDelete }: Readonly<TaskListProps
           task={item}
           onToggle={onToggle}
           onDelete={onDelete}
+          onEdit={onEdit}
         />
       )}
       ListHeaderComponent={createListHeader(tasks.length, completedCount)} // Cabeçalho com contador

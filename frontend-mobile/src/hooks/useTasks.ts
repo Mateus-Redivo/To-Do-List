@@ -60,6 +60,35 @@ export function useTasks(): UseTasksReturn {
     }
   }
 
+  // Atualiza uma tarefa existente
+  async function updateTask(id: number, taskData: TaskFormData): Promise<boolean> {
+    if (!taskData.title.trim()) {
+      setError(MESSAGES.ERROR_EMPTY_TITLE);
+      return false;
+    }
+    
+    setSubmitting(true);
+    setError(null);
+    try {
+      // Envia PUT request para atualizar tarefa
+      const response = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(taskData),
+      });
+      if (!response.ok) throw new Error('Erro ao atualizar tarefa');
+      
+      await fetchTasks(); // Recarrega lista
+      return true;
+    } catch (err) {
+      setError(MESSAGES.ERROR_UPDATE);
+      console.error('Erro:', err);
+      return false;
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   // Alterna o status de conclusão da tarefa
   async function toggleTask(id: number): Promise<void> {
     try {
@@ -98,6 +127,7 @@ export function useTasks(): UseTasksReturn {
     error,
     submitting,
     createTask,
+    updateTask,
     toggleTask,
     deleteTask,
     fetchTasks

@@ -33,6 +33,7 @@ export interface TaskListProps {
   loading: boolean;
   onToggle: (id: number) => void;
   onDelete: (id: number) => void;
+  onEdit: (id: number, taskData: TaskFormData) => void;
 }
 
 // Props do componente individual de tarefa
@@ -40,6 +41,7 @@ export interface TaskItemProps {
   task: Task;
   onToggle: (id: number) => void;
   onDelete: (id: number) => void;
+  onEdit: (id: number, taskData: TaskFormData) => void;
 }
 
 // Props do cabeçalho da lista
@@ -65,6 +67,7 @@ export interface UseTasksReturn {
   error: string | null;
   submitting: boolean;
   createTask: (taskData: TaskFormData) => Promise<boolean>;
+  updateTask: (id: number, taskData: TaskFormData) => Promise<boolean>;
   toggleTask: (id: number) => Promise<void>;
   deleteTask: (id: number) => Promise<void>;
   fetchTasks: () => Promise<void>;

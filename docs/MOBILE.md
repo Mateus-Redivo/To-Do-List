@@ -74,7 +74,15 @@ Crie o arquivo `src/types/index.ts`:
 export interface Task {
   id: number;
   title: string;
+  description: string;
   completed: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface TaskFormData {
+  title: string;
+  description: string;
 }
 
 export interface TaskStats {
@@ -173,6 +181,25 @@ export const useTasks = () => {
     }
   };
 
+  const updateTask = async (id: number, taskData: TaskFormData) => {
+    if (!taskData.title.trim()) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${API_URL}/tasks/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(taskData),
+      });
+      if (!response.ok) throw new Error('Erro ao atualizar tarefa');
+      await fetchTasks();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro desconhecido');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const toggleTask = async (id: number) => {
     const task = tasks.find((t) => t.id === id);
     if (!task) return;
@@ -225,6 +252,7 @@ export const useTasks = () => {
     loading,
     error,
     addTask,
+    updateTask,
     toggleTask,
     deleteTask,
     getStats,
@@ -498,95 +526,237 @@ const styles = StyleSheet.create({
 #### 9.7. TaskItem (`src/components/TaskItem.tsx`)
 
 ```typescript
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Task } from '../types';
-import { theme } from '../styles/theme';
+import { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import type { TaskItemProps, TaskFormData } from '../types';
 
-interface TaskItemProps {
-  task: Task;
-  onToggle: (id: number) => void;
-  onDelete: (id: number) => void;
-}
+function TaskItem({ task, onToggle, onDelete, onEdit }: Readonly<TaskItemProps>) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState<TaskFormData>({
+    title: task.title,
+    description: task.description
+  });
+  const [editError, setEditError] = useState<string>('');
 
-export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete }) => (
-  <View style={styles.container}>
-    <TouchableOpacity
-      style={styles.content}
-      onPress={() => onToggle(task.id)}
-      activeOpacity={0.7}
-    >
-      <View style={[styles.checkbox, task.completed && styles.checkboxCompleted]}>
-        {task.completed && <Text style={styles.checkmark}>✓</Text>}
+  function handleEdit() {
+    setIsEditing(true);
+    setEditError('');
+  }
+
+  function handleCancel() {
+    setIsEditing(false);
+    setEditForm({ title: task.title, description: task.description });
+    setEditError('');
+  }
+
+  function handleSave() {
+    if (!editForm.title.trim()) {
+      setEditError('O título da tarefa é obrigatório.');
+      return;
+    }
+    
+    setEditError('');
+    onEdit(task.id, editForm);
+    setIsEditing(false);
+  }
+
+  // Modo de edição
+  if (isEditing) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.editForm}>
+          {editError ? (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{editError}</Text>
+            </View>
+          ) : null}
+          
+          <TextInput
+            style={styles.editInput}
+            value={editForm.title}
+            onChangeText={(text) => setEditForm({ ...editForm, title: text })}
+            placeholder="Título da tarefa"
+            placeholderTextColor="#9ca3af"
+          />
+          
+          <TextInput
+            style={styles.editTextarea}
+            value={editForm.description}
+            onChangeText={(text) => setEditForm({ ...editForm, description: text })}
+            placeholder="Descrição (opcional)"
+            placeholderTextColor="#9ca3af"
+            multiline
+            numberOfLines={3}
+          />
+          
+          <View style={styles.editActions}>
+            <TouchableOpacity
+              onPress={handleSave}
+              style={[styles.button, styles.saveButton]}
+            >
+              <Text style={styles.buttonText}>Salvar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleCancel}
+              style={[styles.button, styles.cancelButton]}
+            >
+              <Text style={styles.buttonText}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
-      <Text style={[styles.title, task.completed && styles.titleCompleted]}>
-        {task.title}
-      </Text>
-    </TouchableOpacity>
-    <TouchableOpacity
-      style={styles.deleteButton}
-      onPress={() => onDelete(task.id)}
-      activeOpacity={0.7}
-    >
-      <Text style={styles.deleteText}>×</Text>
-    </TouchableOpacity>
-  </View>
-);
+    );
+  }
+
+  // Modo de visualização
+  return (
+    <View style={[styles.container, task.completed && styles.completed]}>
+      <View style={styles.content}>
+        <Text style={[styles.title, task.completed && styles.titleCompleted]}>
+          {task.title}
+        </Text>
+        {task.description ? (
+          <Text style={[styles.description, task.completed && styles.descriptionCompleted]}>
+            {task.description}
+          </Text>
+        ) : null }
+      </View>
+      
+      <View style={styles.actions}>
+        <TouchableOpacity
+          onPress={handleEdit}
+          style={[styles.button, styles.editButton]}
+        >
+          <Text style={styles.buttonText}>Editar</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          onPress={() => onToggle(task.id)}
+          style={[styles.button, task.completed ? styles.undoButton : styles.completeButton]}
+        >
+          <Text style={styles.buttonText}>
+            {task.completed ? "Desfazer" : "Concluir"}
+          </Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          onPress={() => onDelete(task.id)}
+          style={[styles.button, styles.deleteButton]}
+        >
+          <Text style={styles.buttonText}>Remover</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.surface,
-    padding: theme.spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#3b82f6',
+  },
+  completed: {
+    borderLeftColor: '#10b981',
+    opacity: 0.7,
   },
   content: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: theme.colors.border,
-    marginRight: theme.spacing.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkboxCompleted: {
-    backgroundColor: theme.colors.success,
-    borderColor: theme.colors.success,
-  },
-  checkmark: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
+    marginBottom: 12,
   },
   title: {
     fontSize: 16,
-    color: theme.colors.text.primary,
-    flex: 1,
+    fontWeight: '600',
+    color: '#111',
   },
   titleCompleted: {
     textDecorationLine: 'line-through',
-    color: theme.colors.text.secondary,
+    color: '#6b7280',
   },
-  deleteButton: {
-    width: 32,
-    height: 32,
-    justifyContent: 'center',
+  description: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginTop: 4,
+  },
+  descriptionCompleted: {
+    textDecorationLine: 'line-through',
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  button: {
+    flex: 1,
+    padding: 10,
+    borderRadius: 6,
     alignItems: 'center',
   },
-  deleteText: {
-    fontSize: 28,
-    color: theme.colors.danger,
-    fontWeight: '300',
+  editButton: {
+    backgroundColor: '#3b82f6',
+  },
+  completeButton: {
+    backgroundColor: '#10b981',
+  },
+  undoButton: {
+    backgroundColor: '#f59e0b',
+  },
+  deleteButton: {
+    backgroundColor: '#ef4444',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  editForm: {
+    gap: 12,
+  },
+  errorContainer: {
+    backgroundColor: '#fee2e2',
+    padding: 8,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#fecaca',
+  },
+  errorText: {
+    color: '#ef4444',
+    fontSize: 14,
+  },
+  editInput: {
+    backgroundColor: '#f9fafb',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 6,
+    padding: 12,
+    fontSize: 16,
+    color: '#111',
+  },
+  editTextarea: {
+    backgroundColor: '#f9fafb',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 6,
+    padding: 12,
+    fontSize: 14,
+    color: '#111',
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  editActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  saveButton: {
+    backgroundColor: '#10b981',
+  },
+  cancelButton: {
+    backgroundColor: '#6b7280',
   },
 });
+
+export default TaskItem;
 ```
 
 #### 9.8. TaskList (`src/components/TaskList.tsx`)
@@ -594,7 +764,7 @@ const styles = StyleSheet.create({
 ```typescript
 import React from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-import { Task } from '../types';
+import { Task, TaskFormData } from '../types';
 import { TaskItem } from './TaskItem';
 import { ListEmpty } from './ListEmpty';
 import { ListHeader } from './ListHeader';
@@ -603,14 +773,15 @@ interface TaskListProps {
   tasks: Task[];
   onToggle: (id: number) => void;
   onDelete: (id: number) => void;
+  onEdit: (id: number, taskData: TaskFormData) => void;
 }
 
-export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onDelete }) => (
+export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onDelete, onEdit }) => (
   <FlatList
     data={tasks}
     keyExtractor={(item) => item.id.toString()}
     renderItem={({ item }) => (
-      <TaskItem task={item} onToggle={onToggle} onDelete={onDelete} />
+      <TaskItem task={item} onToggle={onToggle} onDelete={onDelete} onEdit={onEdit} />
     )}
     ListEmptyComponent={ListEmpty}
     ListHeaderComponent={tasks.length > 0 ? <ListHeader count={tasks.length} /> : null}
@@ -640,7 +811,7 @@ import { ErrorMessage } from './ErrorMessage';
 import { theme } from '../styles/theme';
 
 export const TaskApp: React.FC = () => {
-  const { tasks, loading, error, addTask, toggleTask, deleteTask, getStats, refetch } = useTasks();
+  const { tasks, loading, error, addTask, updateTask, toggleTask, deleteTask, getStats, refetch } = useTasks();
 
   return (
     <View style={styles.container}>
@@ -654,7 +825,7 @@ export const TaskApp: React.FC = () => {
         </View>
       ) : (
         <>
-          <TaskList tasks={tasks} onToggle={toggleTask} onDelete={deleteTask} />
+          <TaskList tasks={tasks} onToggle={toggleTask} onDelete={deleteTask} onEdit={updateTask} />
           <TaskFooter stats={getStats()} />
         </>
       )}

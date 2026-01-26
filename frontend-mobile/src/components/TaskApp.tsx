@@ -30,6 +30,7 @@ function TaskApp() {
     error, 
     submitting, 
     createTask, 
+    updateTask, 
     toggleTask, 
     deleteTask 
   } = useTasks();
@@ -70,6 +71,7 @@ function TaskApp() {
           loading={loading}
           onToggle={toggleTask}
           onDelete={deleteTask}
+          onEdit={updateTask}
         />
         
         {/* Rodapé da aplicação */}
