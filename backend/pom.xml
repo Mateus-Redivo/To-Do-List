@@ -61,7 +61,7 @@
 		<dependency>
 			<groupId>com.h2</groupId>
 			<artifactId>h2</artifactId>
-			<version>2.2.224</version>
+			<version>2.2.220</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>			
