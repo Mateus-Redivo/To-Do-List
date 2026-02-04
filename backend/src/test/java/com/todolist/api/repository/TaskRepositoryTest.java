@@ -24,22 +24,21 @@ import static org.junit.jupiter.api.Assertions.*;
  * - existsById(): Verificar se existe
  * 
  * @DataJpaTest: Anotação especial para testes de repository
- * - Configura um banco em memória H2 para testes
  * - Aplica transações que são revertidas após cada teste
  * - Não carrega o contexto completo Spring (mais rápido)
  * 
- * @ActiveProfiles("test"): Usa application-test.properties com SQLite
+ * @AutoConfigureTestDatabase(replace = NONE): Usa Testcontainers MySQL
+ * ao invés do banco H2 padrão
  * 
- * @AutoConfigureTestDatabase(replace = NONE): Usa o banco configurado (SQLite)
- * ao invés de substituir por um banco H2
+ * Testcontainers garante que os testes rodam em ambiente idêntico à produção.
  * 
  * @Autowired: Injeta automaticamente o repository real (não é mock)
  */
 @DataJpaTest
-@ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("test")
 @SuppressWarnings("null")
-class TaskRepositoryTest {
+class TaskRepositoryTest extends com.todolist.api.AbstractIntegrationTest {
 
     // Injeta o repository real (conectado ao banco H2 de teste)
     @Autowired
@@ -59,7 +58,7 @@ class TaskRepositoryTest {
         // ARRANGE: Cria uma nova tarefa (sem ID)
         Task task = new Task("Test Task", "Test Description");
         
-        // ACT: Salva no banco
+        // ACT: Salva no banco MySQL do container
         Task savedTask = taskRepository.save(task);
         
         // ASSERT: Verifica se foi salva corretamente

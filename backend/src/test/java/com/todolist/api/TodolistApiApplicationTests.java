@@ -1,15 +1,18 @@
 package com.todolist.api;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest
-@ActiveProfiles("test")
-class TodolistApiApplicationTests {
+/**
+ * Teste de integração principal da aplicação.
+ * 
+ * Verifica se o contexto Spring Boot carrega corretamente com todas as dependências.
+ * Usa Testcontainers com MySQL real através da classe AbstractIntegrationTest.
+ */
+class TodolistApiApplicationTests extends AbstractIntegrationTest {
 
 	@Test
 	void contextLoads() {
+		// Verifica se a aplicação inicia sem erros com MySQL em container
 	}
 
 }
