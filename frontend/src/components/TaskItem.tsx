@@ -102,7 +102,11 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: Readonly<TaskItemProps>)
             {task.completed ? "Desfazer" : "Concluir"}
           </button>
           <button
-            onClick={() => onDelete(task.id)}
+            onClick={() => {
+              if (globalThis.confirm('Tem certeza que deseja remover esta tarefa?')) {
+                onDelete(task.id);
+              }
+            }}
             className="action-button delete-button"
           >
             Remover

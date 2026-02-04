@@ -179,7 +179,19 @@ Implemente a lógica de gerenciamento de estado em `src/hooks/useTasks.ts`:
 - Função `updateTask()` para editar tarefas existentes
 - Tratar erros e estados de carregamento
 - Validar dados antes de enviar para a API (ex: título obrigatório)
-- Exibir mensagens de erro apropriadas para cada situação
+- Exibir mensagens de erro recebidas do backend
+
+**Tratamento de erros do backend:**
+
+```typescript
+if (!response.ok) {
+  const errorData = await response.json();
+  setError(errorData.error || "Mensagem padrão");
+  return false;
+}
+```
+
+O backend retorna mensagens de erro específicas que são exibidas diretamente ao usuário.
 
 ### 4. Desenvolver Componentes
 
@@ -189,9 +201,27 @@ Desenvolva os componentes nesta ordem sugerida:
 2. **TaskHeader.tsx**: Cabeçalho da aplicação
 3. **TaskForm.tsx**: Formulário para criar novas tarefas
 4. **TaskItem.tsx**: Componente para cada tarefa individual com edição inline
+   - Inclui confirmação antes de deletar usando `window.confirm()`
 5. **TaskList.tsx**: Lista que renderiza todas as tarefas
 6. **TaskFooter.tsx**: Área com estatísticas e filtros
 7. **TaskApp.tsx**: Componente principal que integra tudo
+
+### 5. Confirmação de Exclusão
+
+Para evitar exclusões acidentais, use confirmação nativa:
+
+```typescript
+<button
+  onClick={() => {
+    if (window.confirm('Tem certeza que deseja remover esta tarefa?')) {
+      onDelete(task.id);
+    }
+  }}
+  className="action-button delete-button"
+>
+  Remover
+</button>
+```
 
 ## Estrutura de Dados Principal
 

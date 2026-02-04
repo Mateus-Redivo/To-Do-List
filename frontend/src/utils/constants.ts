@@ -10,5 +10,6 @@ export const MESSAGES: Messages = {
   ERROR_CREATE: "Erro ao adicionar tarefa. Tente novamente.",
   ERROR_UPDATE: "Erro ao atualizar tarefa. Tente novamente.",
   ERROR_DELETE: "Erro ao remover tarefa. Tente novamente.",
-  ERROR_EMPTY_TITLE: "O título da tarefa é obrigatório."
+  ERROR_EMPTY_TITLE: "O título da tarefa é obrigatório.",
+  ERROR_CONNECTION: "Não foi possível conectar ao servidor. Verifique sua conexão."
 };

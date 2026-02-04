@@ -61,4 +61,5 @@ export interface Messages {
   ERROR_UPDATE: string;
   ERROR_DELETE: string;
   ERROR_EMPTY_TITLE: string;
+  ERROR_CONNECTION: string;
 }

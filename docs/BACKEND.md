@@ -229,6 +229,50 @@ public class TaskMapper {
 }
 ```
 
+### 7. Exception Handler
+
+Trata erros globalmente e retorna mensagens apropriadas ao frontend:
+
+```java
+@ControllerAdvice
+public class GlobalExceptionHandler {
+    
+    // Trata erros de validação (@Valid)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationErrors(
+        MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            String errorMessage = error.getDefaultMessage();
+            errors.put("error", errorMessage);
+        });
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+    
+    // Trata exceções genéricas
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, String>> handleGenericError(Exception ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Erro interno no servidor. Tente novamente.");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+}
+```
+
+**Respostas de erro padronizadas:**
+
+- **400 Bad Request**: Retorna mensagem de validação específica (ex: "Title is required")
+- **404 Not Found**: Recurso não encontrado
+- **500 Internal Server Error**: Erro genérico do servidor
+
+Exemplo de resposta de erro:
+
+```json
+{
+  "error": "Title is required"
+}
+```
+
 ## Documentação da API
 
 A documentação interativa está disponível através do Swagger UI:

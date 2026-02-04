@@ -162,14 +162,60 @@ export interface TaskItemProps {
 }
 ```
 
+**Confirmação de exclusão:**
+
+Use `Alert.alert()` nativo do React Native para confirmar antes de deletar:
+
+```typescript
+import { Alert } from 'react-native';
+
+<TouchableOpacity
+  onPress={() => {
+    Alert.alert(
+      'Confirmar exclusão',
+      'Tem certeza que deseja remover esta tarefa?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Remover', style: 'destructive', onPress: () => onDelete(task.id) }
+      ]
+    );
+  }}
+>
+  <Text>Remover</Text>
+</TouchableOpacity>
+```
+
 ### 2. Constantes e Configuração
 
 Crie `src/utils/constants.ts`:
 
 ```typescript
+import Constants from 'expo-constants';
+
 // Para emulador Android: use 10.0.2.2
 // Para dispositivo físico: use o IP da sua máquina
-export const API_URL = "http://localhost:3000";
+const apiUrl = Constants.expoConfig?.extra?.apiUrl || 'http://10.0.2.2:8080';
+export const API_URL = `${apiUrl}/api/tasks`;
+
+export const MESSAGES = {
+  ERROR_LOAD: "Erro ao carregar tarefas.",
+  ERROR_CREATE: "Erro ao adicionar tarefa.",
+  ERROR_UPDATE: "Erro ao atualizar tarefa.",
+  ERROR_DELETE: "Erro ao remover tarefa.",
+  ERROR_EMPTY_TITLE: "O título é obrigatório."
+};
+```
+
+**Tratamento de erros do backend:**
+
+O hook `useTasks` lê mensagens de erro enviadas pela API:
+
+```typescript
+if (!response.ok) {
+  const errorData = await response.json();
+  setError(errorData.error || MESSAGES.ERROR_CREATE);
+  return false;
+}
 ```
 
 ### 3. Tema de Estilos

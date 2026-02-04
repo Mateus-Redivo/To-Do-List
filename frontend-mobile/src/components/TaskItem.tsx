@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import type { TaskItemProps } from '../types';
 import { colors, spacing, typography, borderRadius } from '../styles/theme';
 
@@ -42,7 +42,23 @@ function TaskItem({ task, onToggle, onDelete, onEdit }: Readonly<TaskItemProps>)
         
         {/* Botão para remover tarefa */}
         <TouchableOpacity
-          onPress={() => onDelete(task.id)}
+          onPress={() => {
+            Alert.alert(
+              'Confirmar exclusão',
+              'Tem certeza que deseja remover esta tarefa?',
+              [
+                {
+                  text: 'Cancelar',
+                  style: 'cancel'
+                },
+                {
+                  text: 'Remover',
+                  style: 'destructive',
+                  onPress: () => onDelete(task.id)
+                }
+              ]
+            );
+          }}
           style={[styles.button, styles.deleteButton]}
         >
           <Text style={styles.buttonText}>Remover</Text>

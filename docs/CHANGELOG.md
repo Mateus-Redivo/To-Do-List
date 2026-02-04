@@ -7,6 +7,25 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ## [Não Lançado]
 
+### Adicionado
+
+- **Backend**
+  - `GlobalExceptionHandler` para tratamento centralizado de erros
+  - Respostas de erro padronizadas com mensagens específicas
+  - Retorno JSON estruturado para erros de validação (400 Bad Request)
+  
+- **Frontend Web & Mobile**
+  - Confirmação antes de deletar tarefas (window.confirm no web, Alert.alert no mobile)
+  - Tratamento de mensagens de erro recebidas do backend
+  - Exibição de mensagens de validação específicas ao usuário
+  - Diferenciação entre erro de conexão e erro de validação
+
+### Melhorado
+
+- **UX**: Usuário agora recebe feedback mais claro sobre erros de validação
+- **Segurança**: Confirmação obrigatória para ações destrutivas
+- **Manutenibilidade**: Mensagens de erro centralizadas no backend
+
 ## [1.0.0] - 2026-01-26
 
 ### Lançamento Inicial

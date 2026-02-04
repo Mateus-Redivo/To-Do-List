@@ -40,12 +40,17 @@ export function useTasks(): UseTasksReturn {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...taskData, completed: false }),
       });
-      if (!response.ok) throw new Error('Erro ao criar tarefa');
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.error || MESSAGES.ERROR_CREATE);
+        return false;
+      }
       
       await fetchTasks();
       return true;
     } catch (err) {
-      setError(MESSAGES.ERROR_CREATE);
+      setError(MESSAGES.ERROR_CONNECTION);
       console.error('Erro:', err);
       return false;
     } finally {
@@ -68,12 +73,17 @@ export function useTasks(): UseTasksReturn {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(taskData),
       });
-      if (!response.ok) throw new Error('Erro ao atualizar tarefa');
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.error || MESSAGES.ERROR_UPDATE);
+        return false;
+      }
       
       await fetchTasks();
       return true;
     } catch (err) {
-      setError(MESSAGES.ERROR_UPDATE);
+      setError(MESSAGES.ERROR_CONNECTION);
       console.error('Erro:', err);
       return false;
     } finally {
