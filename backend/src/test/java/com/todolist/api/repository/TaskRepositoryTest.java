@@ -18,14 +18,14 @@ import static org.junit.jupiter.api.Assertions.*;
  * Estende JpaRepository que fornece métodos prontos para CRUD:
  * - save(): Salvar/Atualizar
  * - findById(): Buscar por ID
- * - findAll(): Buscar todos
+ * - findAll(): Buscar todas
  * - deleteById(): Deletar por ID
  * - existsById(): Verificar se existe
  * 
  * @DataJpaTest: Anotação especial para testes de repository
  * - Configura um banco em memória H2 para testes
  * - Aplica transações que são revertidas após cada teste
- * - Não carrega todo o contexto Spring (mais rápido)
+ * - Não carrega o contexto completo Spring (mais rápido)
  * 
  * @ActiveProfiles("test"): Usa application-test.properties com H2
  * 
