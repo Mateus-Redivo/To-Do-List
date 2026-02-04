@@ -7,7 +7,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ## [Não Lançado]
 
-### Adicionado
+### Adicionado (Melhorias Recentes)
 
 - **Backend**
   - `GlobalExceptionHandler` para tratamento centralizado de erros
@@ -29,8 +29,6 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 ## [1.0.0] - 2026-01-26
 
 ### Lançamento Inicial
-
-#### Adicionado
 
 - **API Java Spring Boot** (Porta 8080)
   - Endpoints CRUD para gerenciamento de tarefas
