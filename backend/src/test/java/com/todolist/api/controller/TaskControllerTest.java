@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -152,17 +153,17 @@ class TaskControllerTest {
     @Test
     void testCreateTask() throws Exception {
         // ARRANGE: Configura o mock para retornar a tarefa criada
-        when(taskService.createTask(any(TaskDTO.class))).thenReturn(taskDTO);
+        when(taskService.createTask(Objects.requireNonNull(any(TaskDTO.class)))).thenReturn(taskDTO);
 
         // ACT & ASSERT: Faz requisição POST com JSON no corpo
         mockMvc.perform(post("/api/tasks")
-                .contentType(MediaType.APPLICATION_JSON)  // Indica que enviamos JSON
-                .content(objectMapper.writeValueAsString(taskDTO)))  // Converte objeto para JSON
+                .contentType(Objects.requireNonNull(MediaType.APPLICATION_JSON))  // Indica que enviamos JSON
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(taskDTO))))  // Converte objeto para JSON
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Test Task"));
 
         // Verifica que o service foi chamado com qualquer TaskDTO
-        verify(taskService, times(1)).createTask(any(TaskDTO.class));
+        verify(taskService, times(1)).createTask(Objects.requireNonNull(any(TaskDTO.class)));
     }
 
     /**
@@ -177,16 +178,16 @@ class TaskControllerTest {
         // ARRANGE: Cria uma tarefa atualizada
         TaskDTO updatedDTO = new TaskDTO(1L, "Updated Task", "Updated Description", true);
         // Configura o mock para retornar a tarefa atualizada
-        when(taskService.updateTask(eq(1L), any(TaskDTO.class))).thenReturn(Optional.of(updatedDTO));
+        when(taskService.updateTask(eq(1L), Objects.requireNonNull(any(TaskDTO.class)))).thenReturn(Optional.of(updatedDTO));
 
         // ACT & ASSERT: Faz requisição PUT
         mockMvc.perform(put("/api/tasks/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updatedDTO)))
+                .contentType(Objects.requireNonNull(MediaType.APPLICATION_JSON))
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(updatedDTO))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Updated Task"));
 
-        verify(taskService, times(1)).updateTask(eq(1L), any(TaskDTO.class));
+        verify(taskService, times(1)).updateTask(eq(1L), Objects.requireNonNull(any(TaskDTO.class)));
     }
 
     /**
@@ -197,12 +198,12 @@ class TaskControllerTest {
     @Test
     void testUpdateTaskNotFound() throws Exception {
         // ARRANGE: Mock retorna Optional vazio
-        when(taskService.updateTask(eq(999L), any(TaskDTO.class))).thenReturn(Optional.empty());
+        when(taskService.updateTask(eq(999L), Objects.requireNonNull(any(TaskDTO.class)))).thenReturn(Optional.empty());
 
         // ACT & ASSERT
         mockMvc.perform(put("/api/tasks/999")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(taskDTO)))
+                .contentType(Objects.requireNonNull(MediaType.APPLICATION_JSON))
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(taskDTO))))
                 .andExpect(status().isNotFound());
     }
 

@@ -3,6 +3,7 @@ package com.todolist.api.repository;
 import com.todolist.api.model.Task;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -27,12 +28,16 @@ import static org.junit.jupiter.api.Assertions.*;
  * - Aplica transações que são revertidas após cada teste
  * - Não carrega o contexto completo Spring (mais rápido)
  * 
- * @ActiveProfiles("test"): Usa application-test.properties com H2
+ * @ActiveProfiles("test"): Usa application-test.properties com SQLite
+ * 
+ * @AutoConfigureTestDatabase(replace = NONE): Usa o banco configurado (SQLite)
+ * ao invés de substituir por um banco H2
  * 
  * @Autowired: Injeta automaticamente o repository real (não é mock)
  */
 @DataJpaTest
 @ActiveProfiles("test")
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @SuppressWarnings("null")
 class TaskRepositoryTest {
 
