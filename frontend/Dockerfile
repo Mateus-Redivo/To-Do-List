@@ -1,11 +1,13 @@
 # Build stage
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-RUN npm ci
+
+# Install dependencies (use install instead of ci to handle version mismatches)
+RUN npm install
 
 # Copy source code
 COPY . .

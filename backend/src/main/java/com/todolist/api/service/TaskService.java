@@ -36,33 +36,8 @@ public class TaskService {
 
     public TaskDTO createTask(@NonNull TaskDTO taskDTO) {
         Task task = taskMapper.convertToEntity(taskDTO);
-        
-        // Encontra o menor ID disponível
-        Long lowestAvailableId = findLowestAvailableId();
-        task.setId(lowestAvailableId);
-        
         Task savedTask = taskRepository.save(task);
         return taskMapper.convertToDTO(savedTask);
-    }
-
-    private Long findLowestAvailableId() {
-        List<Long> existingIds = taskRepository.findAllIds();
-        
-        if (existingIds.isEmpty()) {
-            return 1L;
-        }
-        
-        // Procura o primeiro gap nos IDs
-        long expectedId = 1L;
-        for (Long id : existingIds) {
-            if (id != expectedId) {
-                return expectedId;
-            }
-            expectedId++;
-        }
-        
-        // Se não há gap, retorna o próximo ID após o último
-        return expectedId;
     }
 
     public Optional <TaskDTO> updateTask(@NonNull Long id, @NonNull TaskDTO taskDTO){

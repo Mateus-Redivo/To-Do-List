@@ -6,12 +6,16 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.validation.FieldError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // Trata erros de validação (@Valid)
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -30,6 +34,7 @@ public class GlobalExceptionHandler {
     // Trata exceções genéricas
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGenericError(Exception ex) {
+        logger.error("Erro não tratado: ", ex);
         Map<String, String> error = new HashMap<>();
         error.put("error", "Erro interno no servidor. Tente novamente.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
