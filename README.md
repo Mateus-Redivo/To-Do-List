@@ -251,9 +251,11 @@ frontend/
 #### Passo 1: Criar o projeto React
 
 ```bash
-npx create-react-app frontend
+npm create vite@latest frontend -- --template react-ts
 cd frontend
 ```
+
+Escolha o framework React, e a variante TypeScript + SWC para melhor tipagem e desenvolvimento.
 
 #### Passo 2: Instalar dependências adicionais
 
