@@ -426,15 +426,15 @@ function TaskList({ tasks, onToggle, onDelete, loading }) {
 
 ### 12.6. Funcionalidades Implementadas
 
-- ✅ **Listagem de tarefas**: Exibe todas as tarefas da API
-- ✅ **Criação de tarefas**: Formulário para adicionar novas tarefas
-- ✅ **Edição de tarefas**: Editar título e descrição de tarefas existentes
-- ✅ **Toggle de status**: Marcar/desmarcar tarefas como concluídas
-- ✅ **Exclusão de tarefas**: Remover tarefas da lista
-- ✅ **Estados de loading**: Indicadores visuais durante operações
-- ✅ **Tratamento de erros**: Mensagens de erro amigáveis
-- ✅ **Design responsivo**: Interface adaptável a diferentes telas
-- ✅ **Estatísticas**: Contador de tarefas totais e concluídas
+- **Listagem de tarefas**: Exibe todas as tarefas da API
+- **Criação de tarefas**: Formulário para adicionar novas tarefas
+- **Edição de tarefas**: Editar título e descrição de tarefas existentes
+- **Toggle de status**: Marcar/desmarcar tarefas como concluídas
+- **Exclusão de tarefas**: Remover tarefas da lista
+- **Estados de loading**: Indicadores visuais durante operações
+- **Tratamento de erros**: Mensagens de erro amigáveis
+- **Design responsivo**: Interface adaptável a diferentes telas
+- **Estatísticas**: Contador de tarefas totais e concluídas
 
 ### 12.7. Estilização (TaskApp.css)
 
@@ -566,12 +566,12 @@ Para o frontend, use `npm start` no terminal da IDE.
 
 ## 16. Recursos Adicionais
 
-- ✅ Validação de dados com Bean Validation
-- ✅ Tratamento de erros com ResponseEntity
-- ✅ Documentação automática com Swagger
-- ✅ Mapper pattern para conversão Entity/DTO
-- ✅ Configuração com variáveis de ambiente
-- ✅ Containerização com Docker
+- Validação de dados com Bean Validation
+- Tratamento de erros com ResponseEntity
+- Documentação automática com Swagger
+- Mapper pattern para conversão Entity/DTO
+- Configuração com variáveis de ambiente
+- Containerização com Docker
 
 ## 17. Testando a API
 
