@@ -17,8 +17,8 @@ function TaskList({ tasks, loading, onToggle, onDelete, onEdit }: Readonly<TaskL
       </div>
 
       {loading ? (
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
+        <div className="loading-container" aria-busy="true" aria-label={MESSAGES.LOADING}>
+          <div className="loading-spinner" aria-hidden="true"></div>
           <span>{MESSAGES.LOADING}</span>
         </div>
       ) : (

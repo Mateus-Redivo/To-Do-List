@@ -1,5 +1,3 @@
-// Types and interfaces for the Task application
-
 export interface Task {
   id: number;
   title: string;
@@ -26,18 +24,19 @@ export interface TaskListProps {
   loading: boolean;
   onToggle: (id: number) => void;
   onDelete: (id: number) => void;
-  onEdit: (id: number, taskData: TaskFormData) => void;
+  onEdit: (id: number, taskData: TaskFormData) => Promise<boolean>;
 }
 
 export interface TaskItemProps {
   task: Task;
   onToggle: (id: number) => void;
   onDelete: (id: number) => void;
-  onEdit: (id: number, taskData: TaskFormData) => void;
+  onEdit: (id: number, taskData: TaskFormData) => Promise<boolean>;
 }
 
 export interface ErrorMessageProps {
   error: string;
+  onDismiss?: () => void;
 }
 
 export interface UseTasksReturn {
@@ -45,6 +44,7 @@ export interface UseTasksReturn {
   loading: boolean;
   error: string | null;
   submitting: boolean;
+  clearError: () => void;
   createTask: (taskData: TaskFormData) => Promise<boolean>;
   updateTask: (id: number, taskData: TaskFormData) => Promise<boolean>;
   toggleTask: (id: number) => Promise<void>;

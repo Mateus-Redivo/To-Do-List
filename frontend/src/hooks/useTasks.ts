@@ -8,114 +8,115 @@ export function useTasks(): UseTasksReturn {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
-  // Função para carregar tarefas
-  async function fetchTasks(): Promise<void> { 
+  function clearError() {
+    setError(null);
+  }
+
+  async function fetchTasks(): Promise<void> {
     setLoading(true);
     setError(null);
     try {
       const response = await fetch(API_URL);
-      if (!response.ok) throw new Error('Erro ao carregar tarefas');
+      if (!response.ok) throw new Error();
       const data: Task[] = await response.json();
       setTasks(data);
-    } catch (err) {
+    } catch {
       setError(MESSAGES.ERROR_LOAD);
-      console.error('Erro:', err);
     } finally {
       setLoading(false);
     }
   }
 
-  // Função para criar nova tarefa
   async function createTask(taskData: TaskFormData): Promise<boolean> {
     if (!taskData.title.trim()) {
       setError(MESSAGES.ERROR_EMPTY_TITLE);
       return false;
     }
-    
+
     setSubmitting(true);
     setError(null);
     try {
       const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...taskData, completed: false }),
       });
-      
+
       if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.error || MESSAGES.ERROR_CREATE);
+        let message = MESSAGES.ERROR_CREATE;
+        try {
+          const errorData = await response.json();
+          if (errorData.error) message = errorData.error;
+        } catch { /* use default message */ }
+        setError(message);
         return false;
       }
-      
+
       await fetchTasks();
       return true;
-    } catch (err) {
+    } catch {
       setError(MESSAGES.ERROR_CONNECTION);
-      console.error('Erro:', err);
       return false;
     } finally {
       setSubmitting(false);
     }
   }
 
-  // Função para atualizar tarefa existente
   async function updateTask(id: number, taskData: TaskFormData): Promise<boolean> {
     if (!taskData.title.trim()) {
       setError(MESSAGES.ERROR_EMPTY_TITLE);
       return false;
     }
-    
+
     setSubmitting(true);
     setError(null);
     try {
       const response = await fetch(`${API_URL}/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(taskData),
       });
-      
+
       if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.error || MESSAGES.ERROR_UPDATE);
+        let message = MESSAGES.ERROR_UPDATE;
+        try {
+          const errorData = await response.json();
+          if (errorData.error) message = errorData.error;
+        } catch { /* use default message */ }
+        setError(message);
         return false;
       }
-      
+
       await fetchTasks();
       return true;
-    } catch (err) {
+    } catch {
       setError(MESSAGES.ERROR_CONNECTION);
-      console.error('Erro:', err);
       return false;
     } finally {
       setSubmitting(false);
     }
   }
 
-  // Função para alternar status da tarefa
   async function toggleTask(id: number): Promise<void> {
     try {
-      const response = await fetch(`${API_URL}/${id}/toggle`, { method: "PATCH" });
-      if (!response.ok) throw new Error('Erro ao atualizar tarefa');
+      const response = await fetch(`${API_URL}/${id}/toggle`, { method: 'PATCH' });
+      if (!response.ok) throw new Error();
       await fetchTasks();
-    } catch (err) {
+    } catch {
       setError(MESSAGES.ERROR_UPDATE);
-      console.error('Erro:', err);
     }
   }
 
-  // Função para deletar tarefa
   async function deleteTask(id: number): Promise<void> {
     try {
-      const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-      if (!response.ok) throw new Error('Erro ao deletar tarefa');
+      const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error();
       await fetchTasks();
-    } catch (err) {
+    } catch {
       setError(MESSAGES.ERROR_DELETE);
-      console.error('Erro:', err);
     }
   }
 
-  // Carregar tarefas ao inicializar
   useEffect(() => {
     fetchTasks();
   }, []);
@@ -125,10 +126,11 @@ export function useTasks(): UseTasksReturn {
     loading,
     error,
     submitting,
+    clearError,
     createTask,
     updateTask,
     toggleTask,
     deleteTask,
-    fetchTasks
+    fetchTasks,
   };
 }

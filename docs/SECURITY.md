@@ -69,4 +69,4 @@ Agradecemos a todos que reportam vulnerabilidades de forma responsável e nos aj
 
 ---
 
-**Última atualização:** 26 de janeiro de 2026
+**Última atualização:** 24 de abril de 2026

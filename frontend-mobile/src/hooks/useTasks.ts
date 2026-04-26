@@ -1,145 +1,121 @@
-/**
- * Hook customizado para gerenciamento de tarefas
- * Gerencia estado, requisições à API e operações CRUD
- */
-
-import { useState, useEffect } from 'react';
-import { API_URL, MESSAGES } from '../utils/constants';
+import { useState, useEffect, useCallback } from 'react';
+import { MESSAGES } from '../utils/constants';
+import {
+  fetchAllTasks,
+  createTaskRequest,
+  updateTaskRequest,
+  toggleTaskRequest,
+  deleteTaskRequest,
+} from '../services/taskApi';
 import type { Task, TaskFormData, UseTasksReturn } from '../types';
 
 export function useTasks(): UseTasksReturn {
-  // Estados do hook
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
-  // Busca todas as tarefas da API
-  async function fetchTasks(): Promise<void> { 
-    setLoading(true); // Inicia loading
-    setError(null); // Limpa erros anteriores
-    try {
-      const response = await fetch(API_URL); // GET request
-      if (!response.ok) throw new Error('Erro ao carregar tarefas');
-      const data: Task[] = await response.json(); // Parse JSON
-      setTasks(data); // Atualiza estado com tarefas
-    } catch (err) {
-      setError(MESSAGES.ERROR_LOAD); // Define mensagem de erro
-      console.error('Erro:', err); // Log para debug
-    } finally {
-      setLoading(false); // Finaliza loading
-    }
-  }
+  const clearError = useCallback(() => setError(null), []);
 
-  // Cria uma nova tarefa
-  async function createTask(taskData: TaskFormData): Promise<boolean> {
-    if (!taskData.title.trim()) {
-      setError(MESSAGES.ERROR_EMPTY_TITLE);
-      return false;
-    }
-    
-    setSubmitting(true); // Indica envio em andamento
+  const fetchTasks = useCallback(async (signal?: AbortSignal): Promise<void> => {
+    setLoading(true);
     setError(null);
     try {
-      // Envia POST request para criar tarefa
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...taskData, completed: false }), // Nova tarefa não concluída
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.error || MESSAGES.ERROR_CREATE);
-        return false;
-      }
-      
-      await fetchTasks(); // Recarrega lista atualizada
-      return true; // Sucesso
+      const data = await fetchAllTasks(signal);
+      setTasks(data);
     } catch (err) {
-      setError(MESSAGES.ERROR_CONNECTION);
+      if (err instanceof Error && err.name === 'AbortError') return;
+      setError(MESSAGES.ERROR_LOAD);
       console.error('Erro:', err);
-      return false;
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
-  }
+  }, []);
 
-  // Atualiza uma tarefa existente
-  async function updateTask(id: number, taskData: TaskFormData): Promise<boolean> {
+  const createTask = useCallback(async (taskData: TaskFormData): Promise<boolean> => {
     if (!taskData.title.trim()) {
       setError(MESSAGES.ERROR_EMPTY_TITLE);
       return false;
     }
-    
     setSubmitting(true);
     setError(null);
     try {
-      // Envia PUT request para atualizar tarefa
-      const response = await fetch(`${API_URL}/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(taskData),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.error || MESSAGES.ERROR_UPDATE);
-        return false;
-      }
-      
-      await fetchTasks(); // Recarrega lista
+      const newTask = await createTaskRequest(taskData);
+      setTasks(prev => [...prev, newTask]);
       return true;
     } catch (err) {
-      setError(MESSAGES.ERROR_CONNECTION);
+      setError(err instanceof Error ? err.message : MESSAGES.ERROR_CREATE);
       console.error('Erro:', err);
       return false;
     } finally {
       setSubmitting(false);
     }
-  }
+  }, []);
 
-  // Alterna o status de conclusão da tarefa
-  async function toggleTask(id: number): Promise<void> {
+  const updateTask = useCallback(async (id: number, taskData: TaskFormData): Promise<boolean> => {
+    if (!taskData.title.trim()) {
+      setError(MESSAGES.ERROR_EMPTY_TITLE);
+      return false;
+    }
+    setSubmitting(true);
+    setError(null);
     try {
-      // PATCH request para alternar status
-      const response = await fetch(`${API_URL}/${id}/toggle`, { method: "PATCH" });
-      if (!response.ok) throw new Error('Erro ao atualizar tarefa');
-      await fetchTasks(); // Recarrega lista
+      const updated = await updateTaskRequest(id, taskData);
+      setTasks(prev => prev.map(t => (t.id === id ? updated : t)));
+      return true;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : MESSAGES.ERROR_UPDATE);
+      console.error('Erro:', err);
+      return false;
+    } finally {
+      setSubmitting(false);
+    }
+  }, []);
+
+  const toggleTask = useCallback(async (id: number): Promise<void> => {
+    setSubmitting(true);
+    setError(null);
+    try {
+      const updated = await toggleTaskRequest(id);
+      setTasks(prev => prev.map(t => (t.id === id ? updated : t)));
     } catch (err) {
       setError(MESSAGES.ERROR_UPDATE);
       console.error('Erro:', err);
+    } finally {
+      setSubmitting(false);
     }
-  }
+  }, []);
 
-  // Remove uma tarefa
-  async function deleteTask(id: number): Promise<void> {
+  const deleteTask = useCallback(async (id: number): Promise<void> => {
+    setSubmitting(true);
+    setError(null);
     try {
-      // DELETE request para remover tarefa
-      const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-      if (!response.ok) throw new Error('Erro ao deletar tarefa');
-      await fetchTasks(); // Recarrega lista
+      await deleteTaskRequest(id);
+      setTasks(prev => prev.filter(t => t.id !== id));
     } catch (err) {
       setError(MESSAGES.ERROR_DELETE);
       console.error('Erro:', err);
+    } finally {
+      setSubmitting(false);
     }
-  }
+  }, []);
 
-  // Carrega as tarefas quando o componente é montado
   useEffect(() => {
-    fetchTasks(); // Executa apenas uma vez na montagem
-  }, []); // Array vazio = executa só na montagem
+    const controller = new AbortController();
+    fetchTasks(controller.signal);
+    return () => controller.abort();
+  }, [fetchTasks]);
 
-  // Retorna estados e funções para os componentes
   return {
     tasks,
     loading,
     error,
     submitting,
+    clearError,
     createTask,
     updateTask,
     toggleTask,
     deleteTask,
-    fetchTasks
+    fetchTasks,
   };
 }

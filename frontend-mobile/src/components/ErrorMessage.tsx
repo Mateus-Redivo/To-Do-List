@@ -8,7 +8,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import type { ErrorMessageProps } from '../types';
 import { colors, spacing, borderRadius } from '../styles/theme';
 
-function ErrorMessage({ error, onDismiss }: ErrorMessageProps & { onDismiss?: () => void }) {
+function ErrorMessage({ error, onDismiss }: ErrorMessageProps) {
   // Não renderiza nada se não houver erro
   if (!error) return null;
 

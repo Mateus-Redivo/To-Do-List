@@ -1,6 +1,7 @@
 package com.todolist.api.service;
 
-import org.springframework.lang.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.todolist.api.dto.TaskDTO;
@@ -13,7 +14,9 @@ import java.util.Optional;
 
 @Service
 public class TaskService {
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(TaskService.class);
+
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
 
@@ -23,48 +26,54 @@ public class TaskService {
     }
 
     public List<TaskDTO> getAllTasks() {
+        logger.debug("Fetching all tasks");
         return taskRepository.findAll()
-        .stream()
-        .map(taskMapper::convertToDTO)
-        .toList();
+                .stream()
+                .map(taskMapper::convertToDTO)
+                .toList();
     }
 
-    public Optional<TaskDTO> getTaskById(@NonNull Long id){
+    public Optional<TaskDTO> getTaskById(Long id) {
+        logger.debug("Fetching task with id={}", id);
         return taskRepository.findById(id)
-               .map(taskMapper::convertToDTO);
+                .map(taskMapper::convertToDTO);
     }
 
-    public TaskDTO createTask(@NonNull TaskDTO taskDTO) {
+    public TaskDTO createTask(TaskDTO taskDTO) {
+        logger.info("Creating task with title='{}'", taskDTO.getTitle());
         Task task = taskMapper.convertToEntity(taskDTO);
         Task savedTask = taskRepository.save(task);
         return taskMapper.convertToDTO(savedTask);
     }
 
-    public Optional <TaskDTO> updateTask(@NonNull Long id, @NonNull TaskDTO taskDTO){
+    public Optional<TaskDTO> updateTask(Long id, TaskDTO taskDTO) {
+        logger.info("Updating task with id={}", id);
         return taskRepository.findById(id)
-        .map(existingTask -> {
-            existingTask.setTitle(taskDTO.getTitle());
-            existingTask.setDescription(taskDTO.getDescription());
-            existingTask.setCompleted(taskDTO.getCompleted());
-            Task updatedTask = taskRepository.save(existingTask);
-            return taskMapper.convertToDTO(updatedTask);
-        });
+                .map(existingTask -> {
+                    existingTask.setTitle(taskDTO.getTitle());
+                    existingTask.setDescription(taskDTO.getDescription());
+                    existingTask.setCompleted(taskDTO.getCompleted());
+                    Task updatedTask = taskRepository.save(existingTask);
+                    return taskMapper.convertToDTO(updatedTask);
+                });
     }
 
-    public boolean deleteTask(@NonNull Long id){
-        if (taskRepository.existsById(id)){
+    public boolean deleteTask(Long id) {
+        logger.info("Deleting task with id={}", id);
+        if (taskRepository.existsById(id)) {
             taskRepository.deleteById(id);
             return true;
         }
         return false;
     }
 
-    public Optional <TaskDTO> toggleTaskCompletion(@NonNull Long id){
+    public Optional<TaskDTO> toggleTaskCompletion(Long id) {
+        logger.info("Toggling completion for task with id={}", id);
         return taskRepository.findById(id)
-               .map(task -> {
-                task.setCompleted(!task.getCompleted());
-                Task updateTask = taskRepository.save(task);
-                return taskMapper.convertToDTO(updateTask);
-               });
+                .map(task -> {
+                    task.setCompleted(!task.getCompleted());
+                    Task updatedTask = taskRepository.save(task);
+                    return taskMapper.convertToDTO(updatedTask);
+                });
     }
 }

@@ -11,7 +11,7 @@ import type { TaskFormData } from './src/types';
 export default function App() {
   const [form, setForm] = useState<TaskFormData>({ title: "", description: "" });
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
-  const { tasks, loading, error, submitting, createTask, updateTask, toggleTask, deleteTask } = useTasks();
+  const { tasks, loading, error, submitting, clearError, createTask, updateTask, toggleTask, deleteTask } = useTasks();
 
   function handleChange(field: string, value: string) {
     setForm({ ...form, [field]: value });
@@ -55,7 +55,7 @@ export default function App() {
         <TaskHeader />
         
         <View style={styles.content}>
-          {error && <ErrorMessage error={error} />}
+          {error && <ErrorMessage error={error} onDismiss={clearError} />}
           
           <TaskForm
             form={form}

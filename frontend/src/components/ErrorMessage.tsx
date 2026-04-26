@@ -1,20 +1,20 @@
 import type { ErrorMessageProps } from '../types';
 
-function ErrorMessage({ error, onDismiss }: ErrorMessageProps & { onDismiss?: () => void }) {
+function ErrorMessage({ error, onDismiss }: Readonly<ErrorMessageProps>) {
   if (!error) return null;
 
   return (
-    <div className="error-message">
+    <div className="error-message" role="alert" aria-live="assertive">
       <div className="error-content">
-        <span className="error-icon">!</span>
+        <span className="error-icon" aria-hidden="true">!</span>
         <span className="error-text">{error}</span>
         {onDismiss && (
-          <button 
+          <button
             onClick={onDismiss}
             className="error-dismiss"
-            aria-label="Fechar erro"
+            aria-label="Fechar mensagem de erro"
           >
-            X
+            ✕
           </button>
         )}
       </div>

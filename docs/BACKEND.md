@@ -1,40 +1,37 @@
 # API To-Do List - Backend
 
-Esta é a API REST do projeto de gerenciamento de tarefas desenvolvida com Spring Boot.
+API REST do projeto de gerenciamento de tarefas desenvolvida com Spring Boot.
 
 ## Tecnologias Utilizadas
 
 - **Java 21**: Linguagem de programação principal
-- **Spring Boot 3.5.4**: Framework para criação de aplicações Java
+- **Spring Boot 3.5.10**: Framework para criação de aplicações Java
 - **Spring Data JPA**: Abstração para acesso a dados e persistência
 - **MySQL**: Banco de dados relacional
 - **Maven**: Gerenciador de dependências e build
 - **Hibernate**: ORM para mapeamento objeto-relacional
-- **SpringDoc OpenAPI**: Documentação automática da API (Swagger)
+- **SpringDoc OpenAPI 2.5.0**: Documentação automática da API (Swagger)
 - **Bean Validation**: Validação de dados com anotações
+- **Spring Boot Actuator**: Monitoramento e métricas
 
 ## Como Começar
 
 ### Requisitos do Sistema
-
-Antes de iniciar o desenvolvimento, você precisa ter instalado em sua máquina:
 
 - Java 21 ou superior
 - Maven 3.6 ou superior
 - MySQL 8.0 ou superior (ou via Docker)
 - Git para controle de versão
 
-### Configuração Inicial
+### Configuração do Banco de Dados
 
-**Configurar o Banco de Dados:**
-
-Edite o arquivo `src/main/resources/application.properties` conforme necessário:
+Edite `src/main/resources/application.properties` ou defina variáveis de ambiente:
 
 ```properties
-# Configuração do MySQL
-spring.datasource.url=jdbc:mysql://localhost:3406/revisao_db?allowPublicKeyRetrieval=true&useSSL=false
-spring.datasource.username=${MYSQL_USER:revisao_user}
-spring.datasource.password=${MYSQL_PASSWORD:revisao_user_password}
+# Data Source Configuration (MySQL)
+spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3406/todolist_db?allowPublicKeyRetrieval=true&useSSL=false}
+spring.datasource.username=${SPRING_DATASOURCE_USERNAME:todolist_user}
+spring.datasource.password=${SPRING_DATASOURCE_PASSWORD:todolist_password}
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
 # JPA/Hibernate
@@ -42,34 +39,27 @@ spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
-
-# Configurações do SpringDoc OpenAPI
-springdoc.api-docs.path=/api-docs
-springdoc.swagger-ui.path=/swagger-ui.html
-springdoc.swagger-ui.operationsSorter=method
 ```
 
-> **Nota**: Use variáveis de ambiente `MYSQL_USER` e `MYSQL_PASSWORD` para maior segurança.
+> **Nota**: Defina `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` e `SPRING_DATASOURCE_PASSWORD` como variáveis de ambiente em produção.
 
 ## Comandos Principais
 
-Durante o desenvolvimento, você usará principalmente estes comandos:
-
 ```bash
-# Windows - Iniciar o servidor de desenvolvimento
-mvnw.cmd spring-boot:run
+# Windows — iniciar servidor de desenvolvimento
+./mvnw.cmd spring-boot:run
 
-# Linux/Mac - Iniciar o servidor de desenvolvimento
+# Linux/Mac — iniciar servidor de desenvolvimento
 ./mvnw spring-boot:run
 
 # Executar testes
-mvnw.cmd test
+./mvnw test
 
 # Criar build para produção
-mvnw.cmd clean package
+./mvnw clean package
 
 # Executar o JAR gerado
-java -jar target/revisao-0.0.1-SNAPSHOT.jar
+java -jar target/todolist-api-1.0.0-RELEASE.jar
 ```
 
 O servidor ficará disponível em `http://localhost:8080`.
@@ -78,42 +68,39 @@ O servidor ficará disponível em `http://localhost:8080`.
 
 ### Estrutura em Camadas
 
-A API segue o padrão de arquitetura em camadas:
-
 ```plaintext
-src/main/java/com/rev/revisao/
+src/main/java/com/todolist/api/
 ├── controller/       # Camada de apresentação (REST endpoints)
 ├── service/          # Camada de lógica de negócio
 ├── repository/       # Camada de acesso a dados
 ├── model/            # Entidades do banco de dados
 ├── dto/              # Data Transfer Objects
 ├── mapper/           # Conversão entre Entity e DTO
-└── config/           # Configurações (CORS, etc)
+├── exceptions/       # Tratamento global de erros
+└── config/           # Configurações (CORS, etc.)
 ```
 
 ### Endpoints da API
 
-A API fornece os seguintes endpoints RESTful:
-
-- **GET** `/api/tasks` - Lista todas as tarefas
-- **GET** `/api/tasks/{id}` - Busca uma tarefa específica por ID
-- **POST** `/api/tasks` - Cria uma nova tarefa
-- **PUT** `/api/tasks/{id}` - Atualiza completamente uma tarefa (título e descrição)
-- **PATCH** `/api/tasks/{id}/toggle` - Alterna o status de conclusão da tarefa
-- **DELETE** `/api/tasks/{id}` - Remove uma tarefa
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/api/tasks` | Lista todas as tarefas |
+| `GET` | `/api/tasks/{id}` | Busca uma tarefa por ID |
+| `POST` | `/api/tasks` | Cria uma nova tarefa |
+| `PUT` | `/api/tasks/{id}` | Atualiza título, descrição e status |
+| `PATCH` | `/api/tasks/{id}/toggle` | Alterna o status de conclusão |
+| `DELETE` | `/api/tasks/{id}` | Remove uma tarefa |
 
 ### Modelo de Dados
 
-A entidade principal `Task` possui os seguintes campos:
+A entidade `Task` possui os seguintes campos:
 
 ```json
 {
   "id": 1,
   "title": "Estudar Spring Boot",
   "description": "Completar o tutorial de Spring Boot",
-  "completed": false,
-  "createdAt": "2024-01-15T10:30:00Z",
-  "updatedAt": "2024-01-15T10:30:00Z"
+  "completed": false
 }
 ```
 
@@ -144,13 +131,19 @@ public class Task {
     private String description;
 
     @Column(nullable = false)
-    private Boolean completed = false;
+    private boolean completed;
 
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+    public Task() {
+        this.title = "";
+        this.completed = false;
+    }
 
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    public Task(String title, String description) {
+        this.title = title;
+        this.description = description;
+        this.completed = false;
+    }
+    // getters e setters...
 }
 ```
 
@@ -160,19 +153,33 @@ O `TaskDTO.java` é usado para transferência de dados entre camadas:
 
 ```java
 public class TaskDTO {
+    @JsonProperty("id")
     private Long id;
-    
+
     @NotBlank(message = "Title is required")
-    @Size(max = 100)
+    @Size(max = 100, message = "Title must be less than 100 characters")
+    @JsonProperty("title")
     private String title;
-    
-    @Size(max = 500)
+
+    @Size(max = 500, message = "Description must be less than 500 characters")
+    @JsonProperty("description")
     private String description;
-    
-    private Boolean completed;
-    
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+
+    @JsonProperty("completed")
+    private boolean completed;
+
+    public TaskDTO() {
+        this.title = "";
+        this.completed = false;
+    }
+
+    public TaskDTO(Long id, String title, String description, boolean completed) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.completed = completed;
+    }
+    // getters e setters...
 }
 ```
 
@@ -194,12 +201,12 @@ Camada de lógica de negócio:
 ```java
 @Service
 public class TaskService {
-    // getAllTasks(): Retorna todas as tarefas
-    // getTaskById(Long id): Busca tarefa por ID
+    // getAllTasks(): Retorna todas as tarefas como lista de DTOs
+    // getTaskById(Long id): Busca tarefa por ID, retorna Optional<TaskDTO>
     // createTask(TaskDTO): Cria nova tarefa
-    // updateTask(Long id, TaskDTO): Atualiza tarefa existente
-    // deleteTask(Long id): Remove tarefa
-    // toggleTaskCompletion(Long id): Alterna status
+    // updateTask(Long id, TaskDTO): Atualiza tarefa existente, retorna Optional<TaskDTO>
+    // deleteTask(Long id): Remove tarefa, retorna boolean
+    // toggleTaskCompletion(Long id): Alterna status, retorna Optional<TaskDTO>
 }
 ```
 
@@ -210,150 +217,125 @@ Camada REST que expõe os endpoints:
 ```java
 @RestController
 @RequestMapping("/api/tasks")
-@Tag(name = "Tasks", description = "API para gerenciamento de tarefas")
+@Tag(name = "Tasks", description = "Task management API")
 public class TaskController {
-    // Endpoints mapeados com @GetMapping, @PostMapping, etc.
+    // Endpoints mapeados com @GetMapping, @PostMapping, @PutMapping, @PatchMapping, @DeleteMapping
 }
 ```
 
 ### 6. Mapper
 
-Converte entre Entity e DTO:
+Converte entre `Task` (Entity) e `TaskDTO`:
 
 ```java
 @Component
 public class TaskMapper {
-    public TaskDTO toDTO(Task task);
-    public Task toEntity(TaskDTO taskDTO);
-    public void updateEntityFromDTO(TaskDTO taskDTO, Task task);
+    public TaskDTO convertToDTO(Task task) { ... }
+    public Task convertToEntity(TaskDTO taskDTO) { ... }
 }
 ```
 
 ### 7. Exception Handler
 
-Trata erros globalmente e retorna mensagens apropriadas ao frontend:
+Trata erros globalmente:
 
 ```java
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    
-    // Trata erros de validação (@Valid)
+
+    // Trata erros de validação (@Valid) — retorna campo → mensagem
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationErrors(
-        MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String errorMessage = error.getDefaultMessage();
-            errors.put("error", errorMessage);
-        });
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-    }
-    
+    public ResponseEntity<Map<String, String>> handleValidationErrors(...) { ... }
+
+    // Trata recurso não encontrado
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<Map<String, String>> handleNotFound(...) { ... }
+
+    // Trata argumentos inválidos
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalArgument(...) { ... }
+
     // Trata exceções genéricas
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleGenericError(Exception ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", "Erro interno no servidor. Tente novamente.");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-    }
+    public ResponseEntity<Map<String, String>> handleGenericError(...) { ... }
 }
 ```
 
-**Respostas de erro padronizadas:**
+**Respostas de erro:**
 
-- **400 Bad Request**: Retorna mensagem de validação específica (ex: "Title is required")
-- **404 Not Found**: Recurso não encontrado
-- **500 Internal Server Error**: Erro genérico do servidor
-
-Exemplo de resposta de erro:
-
-```json
-{
-  "error": "Title is required"
-}
-```
+- **400 Bad Request** — Validação: `{ "title": "Title is required" }`
+- **400 Bad Request** — Argumento inválido: `{ "error": "Invalid request" }`
+- **404 Not Found** — Recurso não encontrado: `{ "error": "Resource not found" }`
+- **500 Internal Server Error** — Erro genérico: `{ "error": "Internal server error. Please try again." }`
 
 ## Documentação da API
 
-A documentação interativa está disponível através do Swagger UI:
+A documentação interativa está disponível via Swagger UI:
 
-- **Swagger UI**: `http://localhost:8080/swagger-ui.html`
-- **OpenAPI JSON**: `http://localhost:8080/api-docs`
-
-A documentação permite:
-
-- Visualizar todos os endpoints disponíveis
-- Testar requisições diretamente no navegador
-- Ver os schemas de requisição e resposta
-- Consultar códigos de status HTTP
+- **Swagger UI**: `http://localhost:8080/swagger-ui/index.html`
+- **OpenAPI JSON**: `http://localhost:8080/v3/api-docs`
 
 ## Configuração CORS
 
-Para permitir requisições do frontend, o CORS está configurado em `CorsConfig.java`:
+O CORS está configurado em `CorsConfig.java` para aceitar requisições dos frontends:
 
 ```java
 @Configuration
-@EnableWebMvc
-public class CorsConfig implements WebMvcConfigurer {
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:3000", "http://localhost:5173")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")
-                .allowedHeaders("*")
-                .allowCredentials(true);
+public class CorsConfig {
+    @Bean
+    WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(@NonNull CorsRegistry registry) {
+                registry.addMapping("/api/**")
+                        .allowedOrigins(
+                            "http://localhost:3000",
+                            "http://localhost:5173",
+                            "http://127.0.0.1:5173"
+                        )
+                        .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+                        .allowedHeaders("Content-Type", "Authorization", "Accept")
+                        .allowCredentials(true)
+                        .maxAge(3600);
+            }
+        };
     }
 }
 ```
 
 ## Executando com Docker
 
-### Usando Docker Compose
-
-O projeto inclui configuração Docker Compose na raiz do projeto:
-
 ```bash
 # Iniciar todos os serviços (MySQL + Backend)
 docker-compose up -d
 
-# Parar os serviços
-docker-compose down
-
 # Ver logs
 docker-compose logs -f backend
-```
 
-### Build Manual do Container
-
-```bash
-# Construir a imagem
-docker build -t todolist-backend .
-
-# Executar o container
-docker run -p 8080:8080 --name backend todolist-backend
+# Parar os serviços
+docker-compose down
 ```
 
 ## Testes
 
-Execute os testes unitários e de integração:
-
 ```bash
 # Executar todos os testes
-mvnw.cmd test
+./mvnw test
 
 # Executar com relatório de cobertura
-mvnw.cmd test jacoco:report
+./mvnw test jacoco:report
 ```
 
-## Tratamento de Erros
+## Tratamento de Erros HTTP
 
-A API retorna respostas HTTP apropriadas:
-
-- **200 OK**: Operação bem-sucedida
-- **201 Created**: Recurso criado com sucesso
-- **400 Bad Request**: Dados inválidos na requisição
-- **404 Not Found**: Recurso não encontrado
-- **500 Internal Server Error**: Erro interno do servidor
+| Código | Significado |
+|--------|-------------|
+| 200 OK | Operação bem-sucedida |
+| 201 Created | Recurso criado com sucesso |
+| 204 No Content | Recurso deletado com sucesso |
+| 400 Bad Request | Dados inválidos na requisição |
+| 404 Not Found | Recurso não encontrado |
+| 500 Internal Server Error | Erro interno do servidor |
 
 ## Exemplo de Uso
 
@@ -362,11 +344,7 @@ A API retorna respostas HTTP apropriadas:
 ```bash
 curl -X POST http://localhost:8080/api/tasks \
   -H "Content-Type: application/json" \
-  -d '{
-    "title": "Estudar Spring Boot",
-    "description": "Completar o tutorial",
-    "completed": false
-  }'
+  -d '{"title": "Estudar Spring Boot", "description": "Completar o tutorial", "completed": false}'
 ```
 
 ### Listar todas as tarefas
@@ -380,10 +358,7 @@ curl http://localhost:8080/api/tasks
 ```bash
 curl -X PUT http://localhost:8080/api/tasks/1 \
   -H "Content-Type: application/json" \
-  -d '{
-    "title": "Estudar Spring Boot - Atualizado",
-    "description": "Completar o tutorial avançado"
-  }'
+  -d '{"title": "Estudar Spring Boot - Atualizado", "description": "Completar o tutorial avançado"}'
 ```
 
 ### Alternar status de conclusão
@@ -398,14 +373,6 @@ curl -X PATCH http://localhost:8080/api/tasks/1/toggle
 curl -X DELETE http://localhost:8080/api/tasks/1
 ```
 
-## Recursos Adicionais
+---
 
-- Validação automática com Bean Validation
-- Documentação automática com Swagger/OpenAPI
-- Auditoria de timestamps (createdAt, updatedAt)
-- Mapeamento DTO/Entity com Mapper pattern
-- Tratamento de exceções personalizado
-- Configuração CORS para frontend
-- Suporte a variáveis de ambiente
-- Docker e Docker Compose
-- Hot reload com DevTools
+**Última atualização:** 24 de abril de 2026

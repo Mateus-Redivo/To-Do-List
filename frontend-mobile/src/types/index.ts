@@ -9,8 +9,6 @@ export interface Task {
   title: string;
   description: string;
   completed: boolean;
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 // Dados do formulário de criação de tarefas
@@ -61,6 +59,7 @@ export interface ListEmptyProps {
 // Props do componente de erro
 export interface ErrorMessageProps {
   error: string;
+  onDismiss?: () => void;
 }
 
 export interface UseTasksReturn {
@@ -68,6 +67,7 @@ export interface UseTasksReturn {
   loading: boolean;
   error: string | null;
   submitting: boolean;
+  clearError: () => void;
   createTask: (taskData: TaskFormData) => Promise<boolean>;
   updateTask: (id: number, taskData: TaskFormData) => Promise<boolean>;
   toggleTask: (id: number) => Promise<void>;

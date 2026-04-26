@@ -1,6 +1,6 @@
 package com.todolist.api.controller;
 
-import org.springframework.lang.NonNull;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +20,6 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
-// Swagger/OpenAPI imports
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -28,7 +27,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/tasks")
-@Tag(name = "Tasks", description = "API para gerenciamento de tarefas")
+@Tag(name = "Tasks", description = "Task management API")
 public class TaskController {
 
     private final TaskService taskService;
@@ -37,70 +36,71 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @Operation(summary = "Listar todas as tarefas")
+    @Operation(summary = "List all tasks")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Lista de tarefas retornada com sucesso")
+        @ApiResponse(responseCode = "200", description = "Task list returned successfully")
     })
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<TaskDTO>> getAllTasks() {
         List<TaskDTO> tasks = taskService.getAllTasks();
         return ResponseEntity.ok(tasks);
     }
-    
-    @Operation(summary = "Buscar tarefa por ID")
+
+    @Operation(summary = "Get task by ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Tarefa encontrada"),
-        @ApiResponse(responseCode = "404", description = "Tarefa não encontrada")
+        @ApiResponse(responseCode = "200", description = "Task found"),
+        @ApiResponse(responseCode = "404", description = "Task not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<TaskDTO> getTaskById(@PathVariable @NonNull Long id) {
+    public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {
         Optional<TaskDTO> task = taskService.getTaskById(id);
         return task.map(ResponseEntity::ok)
-               .orElse(ResponseEntity.notFound().build()); 
-    }
-    
-    @Operation(summary = "Criar nova tarefa")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Tarefa criada com sucesso")
-    })
-    @PostMapping
-    public ResponseEntity<TaskDTO> createTask(@Valid @RequestBody @NonNull TaskDTO taskDTO) {
-        TaskDTO createdTask = taskService.createTask(taskDTO);
-        return ResponseEntity.ok(createdTask);
+               .orElse(ResponseEntity.notFound().build());
     }
 
-    @Operation(summary = "Atualizar tarefa por ID")
+    @Operation(summary = "Create a new task")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Tarefa atualizada com sucesso"),
-        @ApiResponse(responseCode = "404", description = "Tarefa não encontrada")
+        @ApiResponse(responseCode = "201", description = "Task created successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid request body")
+    })
+    @PostMapping
+    public ResponseEntity<TaskDTO> createTask(@Valid @RequestBody TaskDTO taskDTO) {
+        TaskDTO createdTask = taskService.createTask(taskDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdTask);
+    }
+
+    @Operation(summary = "Update task by ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Task updated successfully"),
+        @ApiResponse(responseCode = "404", description = "Task not found")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<TaskDTO> updateTask(@PathVariable @NonNull Long id, @Valid @RequestBody @NonNull TaskDTO taskDTO) {
+    public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @Valid @RequestBody TaskDTO taskDTO) {
         Optional<TaskDTO> updatedTask = taskService.updateTask(id, taskDTO);
         return updatedTask.map(ResponseEntity::ok)
                .orElse(ResponseEntity.notFound().build());
     }
-    
-    @Operation(summary = "Deletar tarefa por ID")
+
+    @Operation(summary = "Delete task by ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Tarefa deletada com sucesso"),
-        @ApiResponse(responseCode = "404", description = "Tarefa não encontrada")
+        @ApiResponse(responseCode = "204", description = "Task deleted successfully"),
+        @ApiResponse(responseCode = "404", description = "Task not found")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable @NonNull Long id){
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         boolean deleted = taskService.deleteTask(id);
-        return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
-    @Operation(summary = "Alternar status de conclusão da tarefa")
+    @Operation(summary = "Toggle task completion status")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Status da tarefa alterado com sucesso"),
-        @ApiResponse(responseCode = "404", description = "Tarefa não encontrada")
+        @ApiResponse(responseCode = "200", description = "Task completion status toggled successfully"),
+        @ApiResponse(responseCode = "404", description = "Task not found")
     })
     @PatchMapping("/{id}/toggle")
-    public ResponseEntity<TaskDTO> toggleTaskCompletion(@PathVariable @NonNull Long id){
+    public ResponseEntity<TaskDTO> toggleTaskCompletion(@PathVariable Long id) {
         Optional<TaskDTO> updatedTask = taskService.toggleTaskCompletion(id);
         return updatedTask.map(ResponseEntity::ok)
-        .orElse(ResponseEntity.notFound().build());
+               .orElse(ResponseEntity.notFound().build());
     }
 }

@@ -4,32 +4,33 @@
 
 Aplicação full-stack para gerenciamento de tarefas com:
 
-- **Frontend Web** (React + TypeScript)
+- **Frontend Web** (React 19 + TypeScript + Vite)
 - **Frontend Mobile** (React Native + Expo)
-- **API REST** (Spring Boot + Java 21)
+- **API REST** (Spring Boot 3.5.10 + Java 21)
 - **Banco de Dados** (MySQL 8.0)
 
-## Arquitetura
+## Diagrama de Arquitetura
 
 ```plaintext
 Frontend Web (React)          Frontend Mobile (React Native)
-     :80                              Expo
-      |                                |
-      +----------------+---------------+
-                       |
-                 /api/tasks (HTTP)
-                       |
-                       v
-              API Spring Boot :8080
-                (Controller)
-                (Service)
-                (Repository)
-                       |
-                  JDBC MySQL
-                       |
-                       v
-              MySQL Database :3406
-                (todolist_db)
+  :5173 (dev) / :80 (prod)            Expo / Metro
+        |                                   |
+        +------------------+----------------+
+                           |
+                    /api/tasks (HTTP)
+                           |
+                           v
+                  API Spring Boot :8080
+                    (TaskController)
+                    (TaskService)
+                    (TaskMapper)
+                    (TaskRepository)
+                           |
+                      JDBC / JPA
+                           |
+                           v
+                  MySQL Database :3406
+                    (todolist_db)
 ```
 
 ## Fluxo de Dados
@@ -40,15 +41,15 @@ Frontend Web (React)          Frontend Mobile (React Native)
 Frontend → POST /api/tasks
 Body: { title: "...", description: "...", completed: false }
 ↓
-Backend: TaskController.createTask()
+TaskController.createTask()
 ↓
-Backend: TaskService.createTask()
+TaskService.createTask()  →  TaskMapper.convertToEntity()
 ↓
-Backend: TaskRepository.save()
+TaskRepository.save()
 ↓
 MySQL: INSERT INTO tasks
 ↓
-Response: Task criada com ID
+Response 201: TaskDTO criado
 ```
 
 ### 2. Listar Tarefas
@@ -56,15 +57,15 @@ Response: Task criada com ID
 ```plaintext
 Frontend → GET /api/tasks
 ↓
-Backend: TaskController.getAllTasks()
+TaskController.getAllTasks()
 ↓
-Backend: TaskService.getAllTasks()
+TaskService.getAllTasks()  →  TaskMapper.convertToDTO()
 ↓
-Backend: TaskRepository.findAll()
+TaskRepository.findAll()
 ↓
 MySQL: SELECT * FROM tasks
 ↓
-Response: Array de Tasks
+Response 200: Array de TaskDTO
 ```
 
 ### 3. Atualizar Tarefa
@@ -73,15 +74,15 @@ Response: Array de Tasks
 Frontend → PUT /api/tasks/{id}
 Body: { title: "...", description: "...", completed: true }
 ↓
-Backend: TaskController.updateTask()
+TaskController.updateTask()
 ↓
-Backend: TaskService.updateTask()
+TaskService.updateTask()
 ↓
-Backend: TaskRepository.save()
+TaskRepository.save()
 ↓
 MySQL: UPDATE tasks SET ...
 ↓
-Response: Task atualizada
+Response 200: TaskDTO atualizado
 ```
 
 ### 4. Alternar Status (Toggle)
@@ -89,13 +90,13 @@ Response: Task atualizada
 ```plaintext
 Frontend → PATCH /api/tasks/{id}/toggle
 ↓
-Backend: TaskController.toggleTaskCompletion()
+TaskController.toggleTaskCompletion()
 ↓
-Backend: TaskService.toggleTaskCompletion()
+TaskService.toggleTaskCompletion()
 ↓
-MySQL: UPDATE tasks SET completed = NOT completed
+MySQL: UPDATE tasks SET completed = !completed
 ↓
-Response: Task com status alterado
+Response 200: TaskDTO com status alterado
 ```
 
 ### 5. Deletar Tarefa
@@ -103,41 +104,39 @@ Response: Task com status alterado
 ```plaintext
 Frontend → DELETE /api/tasks/{id}
 ↓
-Backend: TaskController.deleteTask()
+TaskController.deleteTask()
 ↓
-Backend: TaskService.deleteTask()
+TaskService.deleteTask()
 ↓
-Backend: TaskRepository.deleteById()
+TaskRepository.deleteById()
 ↓
 MySQL: DELETE FROM tasks WHERE id = ?
 ↓
-Response: 204 No Content
+Response 204: No Content
 ```
 
 ## Containers Docker
 
 | Serviço | Container | Porta | Descrição |
 | ------- | --------- | ----- | --------- |
-| Frontend Web | todolist_frontend_web | 80 | React + Vite |
+| Frontend Web | todolist_frontend_web | 80 | React + Vite (build) |
 | Backend API | todolist_backend_api | 8080 | Spring Boot |
 | Database | todolist_backend_db | 3406 | MySQL 8.0 |
 | Test DB | todolist_backend_test_db | 3307 | MySQL (testes) |
-
-### Rede Docker
 
 Todos os containers na rede: `api_network`
 
 ## Inicialização Rápida
 
-```powershell
+```bash
 # Subir todos os serviços
 docker-compose up -d
 
-# Ver logs
+# Ver logs da API
 docker logs -f todolist_backend_api
 
 # Testar API
-Invoke-RestMethod -Uri "http://localhost:8080/api/tasks" -Method GET
+curl http://localhost:8080/api/tasks
 
 # Parar serviços
 docker-compose down
@@ -145,14 +144,16 @@ docker-compose down
 
 ## Stack Técnico
 
-- **Backend:** Java 21 + Spring Boot 3.5.10
-- **Frontend Web:** React 19 + TypeScript + Vite
-- **Frontend Mobile:** React Native + Expo
-- **Database:** MySQL 8.0
-- **ORM:** Spring Data JPA
-- **Build:** Maven 3.9
-- **Container:** Docker + Docker Compose
+| Camada | Tecnologia |
+| ------ | ---------- |
+| Backend | Java 21 + Spring Boot 3.5.10 |
+| Frontend Web | React 19 + TypeScript + Vite |
+| Frontend Mobile | React Native 0.76.5 + Expo ~52.0 |
+| Database | MySQL 8.0 |
+| ORM | Spring Data JPA + Hibernate |
+| Build (backend) | Maven 3.9 |
+| Container | Docker + Docker Compose |
 
 ---
 
-**Última atualização:** 26 de janeiro de 2026
+**Última atualização:** 24 de abril de 2026

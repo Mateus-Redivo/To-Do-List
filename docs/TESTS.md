@@ -49,7 +49,7 @@ Nossa aplicação foca em **testes unitários** e **testes de integração**.
 ## Estrutura de Testes
 
 ```plaintext
-src/test/java/com/rev/revisao/
+src/test/java/com/todolist/api/
 ├── controller/
 │   └── TaskControllerTest.java      # Testa endpoints HTTP
 ├── service/
@@ -88,9 +88,9 @@ A estrutura de testes **espelha** a estrutura do código de produção:
 
 **Exemplos na aplicação:**
 
-- `TaskServiceTest` - testa lógica de negócio
-- `TaskMapperTest` - testa conversões
-- `TaskDTOTest` - testa objetos de transferência
+- `TaskServiceTest` — testa lógica de negócio
+- `TaskMapperTest` — testa conversões
+- `TaskDTOTest` — testa objetos de transferência
 
 ### 2. Testes de Integração
 
@@ -105,8 +105,8 @@ A estrutura de testes **espelha** a estrutura do código de produção:
 
 **Exemplos na aplicação:**
 
-- `TaskRepositoryTest` - testa com banco H2 real
-- `TaskControllerTest` - testa requisições HTTP simuladas
+- `TaskRepositoryTest` — testa com banco H2 real
+- `TaskControllerTest` — testa requisições HTTP simuladas via `MockMvc`
 
 ---
 
@@ -134,7 +134,7 @@ A estrutura de testes **espelha** a estrutura do código de produção:
 | Anotação | Uso | Quando usar |
 | -------- | --- | ----------- |
 | `@DataJpaTest` | Testa repositories | `TaskRepositoryTest` |
-| `@WebMvcTest` | Testa controllers | Alternativa ao MockMvc |
+| `@WebMvcTest` | Testa controllers | Alternativa ao MockMvc standalone |
 | `@SpringBootTest` | Carrega contexto completo | Testes E2E |
 
 ---
@@ -147,16 +147,13 @@ Todos os testes seguem este padrão:
 @Test
 void testExample() {
     // ARRANGE (Preparar)
-    // Configura o cenário do teste
     TaskDTO taskDTO = new TaskDTO(1L, "Teste", "Descrição", false);
     when(repository.findById(1L)).thenReturn(Optional.of(task));
     
     // ACT (Agir)
-    // Executa o código que está sendo testado
     Optional<TaskDTO> result = service.getTaskById(1L);
     
     // ASSERT (Verificar)
-    // Verifica se o resultado é o esperado
     assertTrue(result.isPresent());
     assertEquals("Teste", result.get().getTitle());
     verify(repository, times(1)).findById(1L);
@@ -165,18 +162,9 @@ void testExample() {
 
 ### Explicação de cada fase
 
-1. **ARRANGE**: Prepara tudo que o teste precisa
-   - Cria objetos
-   - Configura mocks
-   - Define comportamentos esperados
-
-2. **ACT**: Executa a ação sendo testada
-   - Chama o método que queremos testar
-   - Deve ser **uma única linha** idealmente
-
-3. **ASSERT**: Verifica os resultados
-   - Usa assertions (`assertEquals`, `assertTrue`, etc.)
-   - Verifica chamadas de métodos (`verify`)
+1. **ARRANGE**: Prepara tudo que o teste precisa — cria objetos, configura mocks, define comportamentos esperados
+2. **ACT**: Executa a ação sendo testada — deve ser **uma única linha** idealmente
+3. **ASSERT**: Verifica os resultados com assertions e verifica chamadas de métodos
 
 ---
 
@@ -184,50 +172,27 @@ void testExample() {
 
 ### O que é um Mock?
 
-Um **mock** é uma versão simulada de um objeto real. Usamos mocks para:
-
-- Isolar o código sendo testado
-- Simular comportamentos
-- Verificar interações
+Um **mock** é uma versão simulada de um objeto real. Usamos mocks para isolar o código sendo testado, simular comportamentos e verificar interações.
 
 ### Principais Métodos do Mockito
 
-#### 1. `when().thenReturn()`
-
-Configura o comportamento do mock:
+#### `when().thenReturn()`
 
 ```java
-// Quando chamar repository.findById(1L), retorne Optional.of(task)
 when(repository.findById(1L)).thenReturn(Optional.of(task));
 ```
 
-#### 2. `verify()`
-
-Verifica se um método foi chamado:
+#### `verify()`
 
 ```java
-// Verifica se findById foi chamado exatamente 1 vez
 verify(repository, times(1)).findById(1L);
-
-// Verifica se NÃO foi chamado
 verify(repository, never()).deleteById(any());
 ```
 
-#### 3. `any()`
-
-Matcher que aceita qualquer valor:
+#### `any()` e `eq()`
 
 ```java
-// Aceita qualquer TaskDTO
 when(service.createTask(any(TaskDTO.class))).thenReturn(taskDTO);
-```
-
-#### 4. `eq()`
-
-Matcher que verifica igualdade exata:
-
-```java
-// ID deve ser exatamente 1L, mas aceita qualquer TaskDTO
 when(service.updateTask(eq(1L), any(TaskDTO.class))).thenReturn(Optional.of(taskDTO));
 ```
 
@@ -237,23 +202,29 @@ when(service.updateTask(eq(1L), any(TaskDTO.class))).thenReturn(Optional.of(task
 @ExtendWith(MockitoExtension.class)
 class TaskServiceTest {
     
-    @Mock  // Cria mock do repository
+    @Mock
     private TaskRepository taskRepository;
     
-    @InjectMocks  // Injeta o mock no service
+    @Mock
+    private TaskMapper taskMapper;
+    
+    @InjectMocks
     private TaskService taskService;
     
     @Test
     void testGetTaskById() {
-        // ARRANGE: Configura comportamento do mock
+        // ARRANGE
         Task task = new Task("Teste", "Descrição");
+        TaskDTO dto = new TaskDTO(1L, "Teste", "Descrição", false);
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
+        when(taskMapper.convertToDTO(task)).thenReturn(dto);
         
-        // ACT: Chama o método real do service
+        // ACT
         Optional<TaskDTO> result = taskService.getTaskById(1L);
         
-        // ASSERT: Verifica resultados e interações
+        // ASSERT
         assertTrue(result.isPresent());
+        assertEquals("Teste", result.get().getTitle());
         verify(taskRepository, times(1)).findById(1L);
     }
 }
@@ -262,8 +233,6 @@ class TaskServiceTest {
 ---
 
 ## Assertions Comuns
-
-### JUnit Assertions
 
 ```java
 // Igualdade
@@ -278,8 +247,7 @@ assertFalse(condition);
 assertNull(object);
 assertNotNull(object);
 
-// Arrays/Coleções
-assertArrayEquals(esperado, real);
+// Coleções
 assertEquals(3, lista.size());
 
 // Exceções
@@ -292,63 +260,58 @@ assertThrows(ExceptionType.class, () -> metodo());
 
 ### 1. Controller Tests (`TaskControllerTest`)
 
-**O que testa:**
+**O que testa:** Endpoints HTTP, status codes, formato JSON, validações de entrada
 
-- Endpoints HTTP (GET, POST, PUT, DELETE, PATCH)
-- Status codes (200, 404, etc.)
-- Formato do JSON retornado
-- Validações de entrada
-
-**Ferramentas:**
-
-- `MockMvc` - Simula requisições HTTP
-- `@Mock` - Simula o Service
-- `ObjectMapper` - Converte JSON
-
-**Exemplo:**
+**Ferramentas:** `MockMvc`, `@Mock TaskService`, `ObjectMapper`
 
 ```java
-mockMvc.perform(get("/api/tasks/1"))
-    .andExpect(status().isOk())
-    .andExpect(jsonPath("$.title").value("Test Task"));
+@ExtendWith(MockitoExtension.class)
+class TaskControllerTest {
+    private MockMvc mockMvc;
+
+    @Mock
+    private TaskService taskService;
+
+    @InjectMocks
+    private TaskController taskController;
+
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(taskController).build();
+    }
+
+    @Test
+    void testGetAllTasks() throws Exception {
+        when(taskService.getAllTasks()).thenReturn(Arrays.asList(taskDTO));
+
+        mockMvc.perform(get("/api/tasks"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].title").value("Test Task"))
+                .andExpect(jsonPath("$[0].completed").value(false));
+
+        verify(taskService, times(1)).getAllTasks();
+    }
+}
 ```
 
 ### 2. Service Tests (`TaskServiceTest`)
 
-**O que testa:**
+**O que testa:** Lógica de negócio, interação com Repository e Mapper, tratamento de Optional
 
-- Lógica de negócio
-- Interação com Repository
-- Conversões via Mapper
-- Tratamento de Optional
-
-**Ferramentas:**
-
-- `@Mock` - Simula Repository e Mapper
-- `@InjectMocks` - Cria Service real
-
-**Exemplo:**
+**Ferramentas:** `@Mock TaskRepository`, `@Mock TaskMapper`, `@InjectMocks TaskService`
 
 ```java
 when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
+when(taskMapper.convertToDTO(task)).thenReturn(dto);
 Optional<TaskDTO> result = taskService.getTaskById(1L);
 verify(taskRepository, times(1)).findById(1L);
 ```
 
 ### 3. Repository Tests (`TaskRepositoryTest`)
 
-**O que testa:**
+**O que testa:** Operações CRUD no banco, queries, integridade dos dados
 
-- Operações CRUD no banco
-- Queries personalizadas
-- Integridade dos dados
-
-**Ferramentas:**
-
-- `@DataJpaTest` - Configura banco H2 em memória
-- `@Autowired` - Injeta repository REAL (não mock)
-
-**Exemplo:**
+**Ferramentas:** `@DataJpaTest` (banco H2 em memória), `@Autowired TaskRepository`
 
 ```java
 Task savedTask = taskRepository.save(task);
@@ -357,13 +320,7 @@ assertNotNull(savedTask.getId());
 
 ### 4. Mapper Tests (`TaskMapperTest`)
 
-**O que testa:**
-
-- Conversão Entity → DTO
-- Conversão DTO → Entity
-- Preservação de dados
-
-**Sem mocks:**
+**O que testa:** Conversão `Entity → DTO` e `DTO → Entity`, preservação de dados
 
 ```java
 TaskMapper mapper = new TaskMapper();
@@ -373,13 +330,7 @@ assertEquals(task.getTitle(), dto.getTitle());
 
 ### 5. DTO/Model Tests
 
-**O que testa:**
-
-- Construtores
-- Getters/Setters
-- Valores padrão
-
-**Testes simples:**
+**O que testa:** Construtores, getters/setters, valores padrão
 
 ```java
 TaskDTO dto = new TaskDTO();
@@ -395,46 +346,37 @@ assertFalse(dto.getCompleted());
 
 ```bash
 # Executar todos os testes
-mvn test
+./mvnw test
 
 # Executar testes de uma classe específica
-mvn test -Dtest=TaskControllerTest
+./mvnw test -Dtest=TaskControllerTest
 
 # Executar um teste específico
-mvn test -Dtest=TaskControllerTest#testGetAllTasks
+./mvnw test -Dtest=TaskControllerTest#testGetAllTasks
 
 # Ver relatório de cobertura
-mvn test jacoco:report
+./mvnw test jacoco:report
 ```
 
 ### Pelo IDE (VS Code, IntelliJ)
 
-1. **Executar todos os testes:**
-   - Clique direito na pasta `test`
-   - Selecione "Run Tests"
-
-2. **Executar testes de uma classe:**
-   - Clique direito no arquivo `...Test.java`
-   - Selecione "Run Tests"
-
-3. **Executar um teste específico:**
-   - Clique no ícone > ao lado do método `@Test`
+1. **Todos os testes**: clique direito na pasta `test` → "Run Tests"
+2. **Por classe**: clique direito no arquivo `...Test.java` → "Run Tests"
+3. **Por método**: clique no ícone `>` ao lado do método `@Test`
 
 ---
 
 ## Cobertura de Testes
 
-### O que é Cobertura?
-
 Cobertura mede quantas linhas/métodos do código foram executados pelos testes.
 
 **Meta ideal:** 80% ou mais de cobertura
 
-### Tipos de Cobertura
-
-- **Line Coverage**: % de linhas executadas
-- **Branch Coverage**: % de condicionais (if/else) testadas
-- **Method Coverage**: % de métodos executados
+| Tipo | Descrição |
+| ---- | --------- |
+| Line Coverage | % de linhas executadas |
+| Branch Coverage | % de condicionais (if/else) testadas |
+| Method Coverage | % de métodos executados |
 
 ---
 
@@ -443,13 +385,10 @@ Cobertura mede quantas linhas/métodos do código foram executados pelos testes.
 ### 1. Nomenclatura de Testes
 
 ```java
-// Ruim
-@Test void test1() { }
-
 // Bom
 @Test void testGetTaskById_ShouldReturnTask_WhenTaskExists() { }
 
-// Alternativa
+// Alternativa com @DisplayName
 @Test 
 @DisplayName("Deve retornar tarefa quando ela existe")
 void testGetTaskById() { }
@@ -458,14 +397,7 @@ void testGetTaskById() { }
 ### 2. Um Conceito por Teste
 
 ```java
-// Ruim - testa muitas coisas
-@Test void testTaskOperations() {
-    // cria tarefa
-    // atualiza tarefa
-    // deleta tarefa
-}
-
-// Bom - testes separados
+// Bom — testes separados
 @Test void testCreateTask() { }
 @Test void testUpdateTask() { }
 @Test void testDeleteTask() { }
@@ -473,33 +405,9 @@ void testGetTaskById() { }
 
 ### 3. Testes Independentes
 
-```java
-// Ruim - testes dependem um do outro
-@Test void test1() { savedId = save(); }
-@Test void test2() { find(savedId); }  // Depende de test1
+Cada teste deve preparar seu próprio cenário — nunca depender do estado deixado por outro teste.
 
-// Bom - cada teste prepara seu próprio cenário
-@Test void test1() { 
-    Long id = save();
-    find(id);
-}
-```
-
-### 4. Testes Legíveis
-
-```java
-// Use constantes descritivas
-private static final Long EXISTING_TASK_ID = 1L;
-private static final Long NON_EXISTING_TASK_ID = 999L;
-
-@Test
-void testGetTaskByIdNotFound() {
-    when(repository.findById(NON_EXISTING_TASK_ID))
-        .thenReturn(Optional.empty());
-}
-```
-
-### 5. Teste Cenários Positivos E Negativos
+### 4. Teste Cenários Positivos e Negativos
 
 ```java
 @Test void testGetTaskById_Success() { }      // Cenário feliz
@@ -512,73 +420,22 @@ void testGetTaskByIdNotFound() {
 
 ## Debugging de Testes
 
-### Quando um teste falha
+Quando um teste falha:
 
-1. **Leia a mensagem de erro** completa
-2. **Identifique a linha** que falhou
-3. **Verifique o ASSERT** - o que era esperado vs o que foi retornado
-4. **Adicione prints** temporários:
-
-   ```java
-   System.out.println("Result: " + result);
-   System.out.println("Expected: " + expected);
-   ```
-
-5. **Use debugger** - coloque breakpoint e execute em modo debug
+1. Leia a mensagem de erro completa
+2. Identifique a linha que falhou
+3. Verifique o ASSERT — o que era esperado vs o que foi retornado
+4. Adicione prints temporários: `System.out.println("Result: " + result);`
+5. Use o debugger — coloque breakpoint e execute em modo debug
 
 ---
 
 ## Recursos Adicionais
 
-### Documentação Oficial
-
 - [JUnit 5](https://junit.org/junit5/docs/current/user-guide/)
 - [Mockito](https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html)
 - [Spring Boot Testing](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.testing)
 
-### Conceitos para Aprofundar
-
-- TDD (Test-Driven Development)
-- BDD (Behavior-Driven Development)
-- Test Doubles (Mocks, Stubs, Fakes, Spies)
-- Mutation Testing
-- Contract Testing
-
 ---
 
-## Exercícios Propostos
-
-### Nível Iniciante
-
-1. Adicione um teste que verifica se `getTaskById` lança exceção para ID nulo
-2. Crie teste para verificar se `createTask` não aceita título vazio
-3. Teste se `deleteTask` retorna false para ID negativo
-
-### Nível Intermediário
-
-1. Implemente testes de validação (@Valid) no controller
-2. Adicione teste de paginação na listagem de tarefas
-3. Crie testes para buscar tarefas filtradas por status (completed/pending)
-
-### Nível Avançado
-
-1. Implemente testes de performance (verificar tempo de execução)
-2. Adicione testes de concorrência (múltiplas threads)
-3. Crie testes de integração completos com TestContainers
-
----
-
-## Contribuindo
-
-Ao adicionar novos testes, lembre-se de:
-
-1. Seguir o padrão AAA
-2. Adicionar comentários explicativos
-3. Testar cenários positivos e negativos
-4. Manter testes independentes
-5. Atualizar esta documentação se necessário
-
----
-
-**Criado para fins educacionais**
-**Última atualização:** Janeiro 2026
+**Última atualização:** 24 de abril de 2026

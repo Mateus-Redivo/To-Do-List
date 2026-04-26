@@ -1,68 +1,64 @@
 package com.todolist.api.model;
 
 import jakarta.persistence.*;
-import org.springframework.lang.NonNull;
 
 @Entity
 @Table(name = "tasks")
 public class Task {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private @NonNull String title;
+    private String title;
 
     @Column
     private String description;
 
     @Column(nullable = false)
-    private @NonNull Boolean completed = false;
+    private boolean completed;
 
-    //Constructors
     public Task() {
         this.title = "";
         this.completed = false;
     }
 
-    public Task(@NonNull String title, String description) {
+    public Task(String title, String description) {
         this.title = title;
         this.description = description;
         this.completed = false;
     }
 
-    //Getters and Setters
-
-    public Long getId() { 
+    public Long getId() {
         return id;
     }
 
-    public @NonNull String getTitle() { 
+    public String getTitle() {
         return title;
     }
-    
-    public String getDescription() { 
+
+    public String getDescription() {
         return description;
     }
 
-    public @NonNull Boolean getCompleted() { 
+    public boolean getCompleted() {
         return completed;
     }
 
-    public void setId(Long id){
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public void setTitle(@NonNull String title){
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    public void setDescription(String description){
+    public void setDescription(String description) {
         this.description = description;
     }
 
-    public void setCompleted(@NonNull Boolean completed){
+    public void setCompleted(boolean completed) {
         this.completed = completed;
     }
 }

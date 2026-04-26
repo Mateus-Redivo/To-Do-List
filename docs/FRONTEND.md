@@ -1,82 +1,39 @@
-# Pwini - Gerenciador de Tarefas
+# Frontend Web - To Do List
 
-Este é o frontend de um projeto de gerenciamento de tarefas.
+Frontend web do projeto de gerenciamento de tarefas desenvolvido com React e TypeScript.
 
 ## Tecnologias Utilizadas
 
 - **React 19**: Biblioteca principal para construção da interface de usuário
-- **TypeScript**: Adiciona tipagem estática ao JavaScript, tornando o código mais seguro e maintível
-- **Vite**: Ferramenta de build e servidor de desenvolvimento extremamente rápida
-- **Tailwind CSS**: Framework CSS utilitário para estilização ágil e consistente
-- **ESLint**: Ferramenta de análise de código para manter a qualidade e padrões
+- **TypeScript**: Adiciona tipagem estática ao JavaScript
+- **Vite**: Ferramenta de build e servidor de desenvolvimento
+- **Tailwind CSS**: Framework CSS utilitário para estilização
+- **ESLint**: Análise de código para manter qualidade e padrões
 
 ## Como Começar
 
 ### Requisitos do Sistema
 
-Antes de iniciar o desenvolvimento, você precisa ter instalado em sua máquina:
-
-- Node.js versão 18 ou superior
-- npm ou yarn para gerenciamento de pacotes
+- Node.js 18 ou superior
+- npm para gerenciamento de pacotes
 - Git para controle de versão
 
-### Configuração Inicial do Projeto
-
-Se você está começando um novo projeto do zero, siga estes passos:
-
-**Criando o projeto base:**
+### Configuração Inicial
 
 ```bash
-# Criar novo projeto React com TypeScript usando Vite
-npm create vite@latest pwini -- --template react-swc-ts
+# Entrar no diretório do frontend
+cd frontend
 
-# Entrar no diretório do projeto
-cd pwini
-
-# Instalar as dependências básicas
+# Instalar as dependências
 npm install
+
+# Iniciar o servidor de desenvolvimento
+npm run dev
 ```
 
-**Configurando o Tailwind CSS:**
-
-```bash
-# Instalar o Tailwind e suas dependências
-npm install -D tailwindcss postcss autoprefixer
-
-# Inicializar os arquivos de configuração
-npx tailwindcss init -p
-
-# Instalar tipos do Node.js (opcional)
-npm install @types/node
-```
-
-**Configurar o arquivo tailwind.config.js:**
-
-```js
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}
-```
-
-**Atualizar o arquivo src/index.css:**
-
-```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-```
+O servidor de desenvolvimento ficará disponível em `http://localhost:5173`.
 
 ## Comandos Principais
-
-Durante o desenvolvimento, você usará principalmente estes comandos:
 
 ```bash
 # Iniciar o servidor de desenvolvimento
@@ -92,48 +49,61 @@ npm run preview
 npm run lint
 ```
 
-O servidor de desenvolvimento ficará disponível em `http://localhost:5173`.
-
 ## Configuração do Backend
 
-Esta aplicação frontend se conecta a uma API REST. Para configurar a conexão, edite o arquivo `src/utils/constants.ts`:
+A API é consumida via URL relativa, com proxy configurado pelo Vite. O arquivo `src/utils/constants.ts` define a URL:
 
 ```typescript
-export const API_URL = "http://localhost:8080/api/tasks";
+export const API_URL = "/api/tasks";
 ```
 
-### Endpoints Necessários
+Em desenvolvimento, as requisições para `/api/tasks` são automaticamente encaminhadas para `http://localhost:8080/api/tasks` pelo proxy do Vite. Em produção via Docker, o Nginx roteia os caminhos `/api/*` para o backend.
 
-Sua API deve implementar os seguintes endpoints:
+### Endpoints Consumidos
 
-- **GET /api/tasks**: Retorna todas as tarefas
-- **POST /api/tasks**: Cria uma nova tarefa
-- **PUT /api/tasks/:id**: Atualiza uma tarefa existente (título e descrição)
-- **PATCH /api/tasks/:id/toggle**: Alterna o status de conclusão da tarefa
-- **DELETE /api/tasks/:id**: Remove uma tarefa
+- **GET /api/tasks** — Lista todas as tarefas
+- **POST /api/tasks** — Cria uma nova tarefa
+- **PUT /api/tasks/:id** — Atualiza título, descrição e status
+- **PATCH /api/tasks/:id/toggle** — Alterna status de conclusão
+- **DELETE /api/tasks/:id** — Remove uma tarefa
 
 ### Formato de Dados
-
-As tarefas devem seguir este formato JSON:
 
 ```json
 {
   "id": 1,
   "title": "Minha tarefa",
   "description": "Descrição da tarefa",
-  "completed": false,
-  "createdAt": "2024-01-15T10:30:00Z",
-  "updatedAt": "2024-01-15T10:30:00Z"
+  "completed": false
 }
 ```
 
-## Guia de Implementação
+## Estrutura do Projeto
 
-Se você está desenvolvendo este projeto, sugerimos seguir esta ordem:
+```plaintext
+frontend/
+├── src/
+│   ├── components/       # Componentes React
+│   │   ├── TaskApp.tsx       # Componente raiz da aplicação
+│   │   ├── TaskHeader.tsx    # Cabeçalho
+│   │   ├── TaskForm.tsx      # Formulário de criação
+│   │   ├── TaskList.tsx      # Lista de tarefas
+│   │   ├── TaskItem.tsx      # Item individual com edição inline
+│   │   ├── TaskFooter.tsx    # Rodapé com estatísticas
+│   │   └── ErrorMessage.tsx  # Exibição de erros
+│   ├── hooks/
+│   │   └── useTasks.ts       # Hook de gerenciamento de estado
+│   ├── types/
+│   │   └── index.ts          # Interfaces e tipos TypeScript
+│   └── utils/
+│       └── constants.ts      # API_URL e mensagens
+├── index.html
+└── package.json
+```
 
-### 1. Definir Tipos e Interfaces
+## Tipos e Interfaces
 
-Comece criando as definições de tipos em `src/types/index.ts`:
+Definidos em `src/types/index.ts`:
 
 ```typescript
 export interface Task {
@@ -149,120 +119,102 @@ export interface TaskFormData {
   title: string;
   description: string;
 }
+
+export interface UseTasksReturn {
+  tasks: Task[];
+  loading: boolean;
+  error: string | null;
+  submitting: boolean;
+  clearError: () => void;
+  createTask: (taskData: TaskFormData) => Promise<boolean>;
+  updateTask: (id: number, taskData: TaskFormData) => Promise<boolean>;
+  toggleTask: (id: number) => Promise<void>;
+  deleteTask: (id: number) => Promise<void>;
+  fetchTasks: () => Promise<void>;
+}
 ```
 
-### 2. Configurar Constantes
+## Hook Personalizado (useTasks)
 
-Defina as configurações em `src/utils/constants.ts`:
+O hook `src/hooks/useTasks.ts` centraliza toda a lógica de negócio:
 
-```typescript
-export const API_URL = "http://localhost:8080/api/tasks";
+**Funções exportadas:**
 
-export const MESSAGES = {
-  LOADING: "Carregando tarefas...",
-  EMPTY_TITLE: "Nenhuma tarefa encontrada",
-  EMPTY_DESCRIPTION: "Adicione sua primeira tarefa acima para começar!",
-  ERROR_LOAD: "Erro ao carregar tarefas. Verifique se o servidor está rodando.",
-  ERROR_CREATE: "Erro ao adicionar tarefa. Tente novamente.",
-  ERROR_UPDATE: "Erro ao atualizar tarefa. Tente novamente.",
-  ERROR_DELETE: "Erro ao remover tarefa. Tente novamente.",
-  ERROR_EMPTY_TITLE: "O título da tarefa é obrigatório."
-};
-```
+- `fetchTasks()` — Carrega todas as tarefas da API
+- `createTask(taskData)` — Cria nova tarefa, retorna `boolean`
+- `updateTask(id, taskData)` — Atualiza tarefa existente, retorna `boolean`
+- `toggleTask(id)` — Alterna status de conclusão
+- `deleteTask(id)` — Remove tarefa
+- `clearError()` — Limpa a mensagem de erro atual
 
-### 3. Criar Hook Personalizado
+**Estado gerenciado:**
 
-Implemente a lógica de gerenciamento de estado em `src/hooks/useTasks.ts`:
-
-- Gerenciar o estado das tarefas
-- Implementar operações CRUD (Create, Read, Update, Delete)
-- Função `updateTask()` para editar tarefas existentes
-- Tratar erros e estados de carregamento
-- Validar dados antes de enviar para a API (ex: título obrigatório)
-- Exibir mensagens de erro recebidas do backend
+- `tasks` — Array de tarefas carregadas
+- `loading` — Indica carregamento inicial
+- `error` — Mensagem de erro atual ou `null`
+- `submitting` — Indica operação de escrita em andamento
 
 **Tratamento de erros do backend:**
 
 ```typescript
 if (!response.ok) {
-  const errorData = await response.json();
-  setError(errorData.error || "Mensagem padrão");
+  let message = MESSAGES.ERROR_CREATE;
+  try {
+    const errorData = await response.json();
+    if (errorData.error) message = errorData.error;
+  } catch { /* usa mensagem padrão */ }
+  setError(message);
   return false;
 }
 ```
 
-O backend retorna mensagens de erro específicas que são exibidas diretamente ao usuário.
+## Componentes
 
-### 4. Desenvolver Componentes
+### TaskApp
 
-Desenvolva os componentes nesta ordem sugerida:
+Componente principal que orquestra a aplicação. Gerencia o estado do formulário e conecta todos os componentes ao hook `useTasks`.
 
-1. **ErrorMessage.tsx**: Para exibir mensagens de erro
-2. **TaskHeader.tsx**: Cabeçalho da aplicação
-3. **TaskForm.tsx**: Formulário para criar novas tarefas
-4. **TaskItem.tsx**: Componente para cada tarefa individual com edição inline
-   - Inclui confirmação antes de deletar usando `window.confirm()`
-5. **TaskList.tsx**: Lista que renderiza todas as tarefas
-6. **TaskFooter.tsx**: Área com estatísticas e filtros
-7. **TaskApp.tsx**: Componente principal que integra tudo
+### TaskForm
 
-### 5. Confirmação de Exclusão
+Formulário para criar novas tarefas com campos de título e descrição. O botão de submit é desabilitado enquanto `submitting` for `true`.
 
-Para evitar exclusões acidentais, use confirmação nativa:
+### TaskList
 
-```typescript
-<button
-  onClick={() => {
-    if (window.confirm('Tem certeza que deseja remover esta tarefa?')) {
-      onDelete(task.id);
-    }
-  }}
-  className="action-button delete-button"
->
-  Remover
-</button>
-```
+Renderiza a lista de tarefas recebida como prop. Exibe estado de carregamento e estado vazio.
 
-## Estrutura de Dados Principal
+### TaskItem
 
-A interface principal que define uma tarefa:
+Item individual da lista com dois modos:
 
-```typescript
-interface Task {
-  id: number;
-  title: string;
-  description: string;
-  completed: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
-```
+- **Visualização**: Exibe título, descrição e botões de ação
+- **Edição inline**: Inputs para editar título e descrição com validação local
 
-## Validação e Mensagens de Erro
+Usa `window.confirm()` antes de deletar uma tarefa.
 
-A aplicação implementa validação de dados e feedback ao usuário:
+### ErrorMessage
 
-### Validação de Título
+Exibe erros globais com botão de fechar (`onDismiss`). Aparece abaixo do cabeçalho.
+
+## Validação de Dados
 
 O campo título é **obrigatório** tanto ao criar quanto ao editar tarefas:
 
-- **Ao criar nova tarefa**: O botão "Adicionar Tarefa" fica desabilitado se o título estiver vazio. Se tentar submeter, a mensagem de erro global é exibida.
+- **Ao criar**: Validado no hook antes de chamar a API
+- **Ao editar inline**: Validado localmente dentro do `TaskItem`
 
-- **Ao editar tarefa existente**: Se tentar salvar uma edição sem título, uma mensagem de erro aparece diretamente no formulário de edição inline.
+### Mensagens de Erro
 
-### Mensagens de Erro Implementadas
+Definidas em `src/utils/constants.ts`:
 
-- **ERROR_LOAD**: Exibida quando falha ao carregar as tarefas do servidor
-- **ERROR_CREATE**: Exibida quando falha ao criar uma nova tarefa
-- **ERROR_UPDATE**: Exibida quando falha ao atualizar uma tarefa existente
-- **ERROR_DELETE**: Exibida quando falha ao deletar uma tarefa
-- **ERROR_EMPTY_TITLE**: Exibida quando tenta criar ou editar uma tarefa sem título
+| Constante | Situação |
+| --------- | -------- |
+| `ERROR_LOAD` | Falha ao carregar tarefas |
+| `ERROR_CREATE` | Falha ao criar tarefa |
+| `ERROR_UPDATE` | Falha ao atualizar tarefa |
+| `ERROR_DELETE` | Falha ao remover tarefa |
+| `ERROR_EMPTY_TITLE` | Título vazio ao criar ou editar |
+| `ERROR_CONNECTION` | Sem conexão com o servidor |
 
-### Componente ErrorMessage
+---
 
-O componente `ErrorMessage.tsx` exibe erros globais no topo da aplicação, logo abaixo do cabeçalho. Erros de validação no formulário de edição são exibidos localmente dentro do próprio item.
-  completed: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
-```
+**Última atualização:** 24 de abril de 2026

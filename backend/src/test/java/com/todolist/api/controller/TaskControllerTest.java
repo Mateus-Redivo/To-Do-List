@@ -154,11 +154,10 @@ class TaskControllerTest {
         // ARRANGE: Configura o mock para retornar a tarefa criada
         when(taskService.createTask(any(TaskDTO.class))).thenReturn(taskDTO);
 
-        // ACT & ASSERT: Faz requisição POST com JSON no corpo
         mockMvc.perform(post("/api/tasks")
-                .contentType(MediaType.APPLICATION_JSON)  // Indica que enviamos JSON
-                .content(objectMapper.writeValueAsString(taskDTO)))  // Converte objeto para JSON
-                .andExpect(status().isOk())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(taskDTO)))
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title").value("Test Task"));
 
         // Verifica que o service foi chamado com qualquer TaskDTO
@@ -218,9 +217,8 @@ class TaskControllerTest {
         // ARRANGE: Mock retorna true (tarefa foi deletada)
         when(taskService.deleteTask(1L)).thenReturn(true);
 
-        // ACT & ASSERT: Verifica se retorna status 200
         mockMvc.perform(delete("/api/tasks/1"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         verify(taskService, times(1)).deleteTask(1L);
     }
