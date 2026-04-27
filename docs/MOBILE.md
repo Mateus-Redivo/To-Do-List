@@ -22,7 +22,7 @@ Aplicação mobile desenvolvida com React Native e Expo para gerenciamento de ta
 ### Instalação
 
 ```bash
-cd frontend-mobile
+cd mobile
 npm install
 npm start
 ```
@@ -51,7 +51,7 @@ npx expo start --clear
 ## Estrutura do Projeto
 
 ```plaintext
-frontend-mobile/
+mobile/
 ├── App.tsx                   # Componente raiz da aplicação
 ├── src/
 │   ├── components/
