@@ -128,7 +128,7 @@ sobe acima dele**. O `TaskMapper` é a única fronteira entre os dois.
 ### Endpoints da API
 
 | Método | Endpoint | Descrição |
-|--------|----------|-----------|
+| -------- | ---------- | ----------- |
 | `GET` | `/api/tasks` | Lista todas as tarefas |
 | `GET` | `/api/tasks/{id}` | Busca uma tarefa por ID |
 | `POST` | `/api/tasks` | Cria uma nova tarefa |
@@ -529,7 +529,7 @@ Detalhes sobre a estrutura e os tipos de teste estão em [TESTS.md](TESTS.md).
 ## Tratamento de Erros HTTP
 
 | Código | Significado |
-|--------|-------------|
+| -------- | ------------- |
 | 200 OK | Operação bem-sucedida |
 | 201 Created | Recurso criado com sucesso |
 | 204 No Content | Recurso deletado com sucesso |
