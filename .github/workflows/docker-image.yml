@@ -10,14 +10,77 @@ on:
     branches: [ "main" ]
 
 jobs:
-  docker-compose-up-and-test:
-    name: Docker Compose & Tests
+  # Testes do backend. Rodam contra o H2 em memória do profile 'test', sem depender de
+  # Docker nem de um MySQL no ar — por isso são rápidos e não compartilham estado com
+  # nenhum banco de desenvolvimento.
+  backend-tests:
+    name: Backend Tests
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Make mvnw executable
+      working-directory: ./backend
+      run: chmod +x ./mvnw
+
+    # 'verify' roda os testes e, em seguida, o gate de cobertura do JaCoCo
+    - name: Run tests and coverage check
+      working-directory: ./backend
+      run: ./mvnw --batch-mode verify
+
+    # report-only não roda os testes de novo: apenas converte os resultados da execução
+    # anterior em HTML navegável
+    - name: Generate HTML test report
+      if: always()
+      working-directory: ./backend
+      run: ./mvnw --batch-mode surefire-report:report-only
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: |
+          backend/target/reports/surefire.html
+          backend/target/surefire-reports/
+
+    - name: Upload coverage report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: backend/target/site/jacoco/
+
+    # Javadoc publicado como artefato para consulta sem precisar gerar localmente
+    - name: Generate Javadoc
+      run: ./mvnw --batch-mode javadoc:javadoc
+      working-directory: ./backend
+
+    - name: Upload Javadoc
+      uses: actions/upload-artifact@v4
+      with:
+        name: javadoc
+        path: backend/target/reports/apidocs/
+
+  # Valida que a stack completa sobe e responde. Complementa os testes acima: aqui o que se
+  # verifica é a integração real (Dockerfile, compose, MySQL, rede), não a lógica da aplicação.
+  docker-stack:
+    name: Docker Stack Smoke Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
     - name: Create .env file
       run: |
         echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD || 'test_root_password' }}" >> .env
@@ -26,38 +89,42 @@ jobs:
         echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD || 'test_password' }}" >> .env
         echo "SPRING_DATASOURCE_USERNAME=todolist_user" >> .env
         echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.MYSQL_PASSWORD || 'test_password' }}" >> .env
-    
+
     - name: Start all services with Docker Compose
       run: docker compose up -d --build
-    
-    - name: Wait for services to be ready
+
+    - name: Wait for the API to become healthy
       run: |
         echo "Waiting for backend to be healthy..."
         timeout 180s bash -c 'until curl -sf http://localhost:8080/actuator/health > /dev/null 2>&1; do echo "Waiting..."; sleep 5; done'
         echo "Backend is ready!"
-    
-    - name: Set up JDK 21 for tests
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        cache: maven
-    
-    - name: Make mvnw executable
-      working-directory: ./backend
-      run: chmod +x ./mvnw
-    
-    - name: Run Java tests
-      working-directory: ./backend
-      run: ./mvnw test
-    
-    - name: Upload test results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results
-        path: backend/target/surefire-reports/
-    
+
+    # Exercita o CRUD de ponta a ponta contra o MySQL real, validando a integração
+    # que os testes com H2 não cobrem
+    - name: Smoke test the API
+      run: |
+        set -e
+        echo "POST /api/tasks"
+        CREATED=$(curl -sf -X POST http://localhost:8080/api/tasks \
+          -H "Content-Type: application/json" \
+          -d '{"title": "CI smoke test", "description": "Criada pelo pipeline"}')
+        echo "$CREATED"
+        TASK_ID=$(echo "$CREATED" | sed -E 's/.*"id":([0-9]+).*/\1/')
+
+        echo "GET /api/tasks/$TASK_ID"
+        curl -sf "http://localhost:8080/api/tasks/$TASK_ID" > /dev/null
+
+        echo "PATCH /api/tasks/$TASK_ID/toggle"
+        curl -sf -X PATCH "http://localhost:8080/api/tasks/$TASK_ID/toggle" | grep -q '"completed":true'
+
+        echo "DELETE /api/tasks/$TASK_ID"
+        curl -sf -X DELETE "http://localhost:8080/api/tasks/$TASK_ID" -o /dev/null
+
+        echo "GET /api/tasks/$TASK_ID deve retornar 404"
+        test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/tasks/$TASK_ID)" = "404"
+
+        echo "Smoke test OK"
+
     - name: Show logs if failed
       if: failure()
       run: |
@@ -65,7 +132,7 @@ jobs:
         docker compose logs backend
         echo "=== Database logs ==="
         docker compose logs backend-db
-    
+
     - name: Stop services
       if: always()
       run: docker compose down -v

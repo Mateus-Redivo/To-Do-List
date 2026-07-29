@@ -1,32 +1,45 @@
 package com.todolist.api.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+/**
+ * Contrato público da API para uma tarefa, usado como corpo de requisição e de resposta.
+ *
+ * <p>{@code completed} é {@link Boolean} e não {@code boolean} de propósito: só assim dá para
+ * distinguir "campo não enviado" de "enviado como false". Num PUT, omitir o campo preserva o
+ * estado atual; com um primitivo, a omissão marcaria a tarefa como não concluída sem querer.</p>
+ */
+@Schema(description = "Representação de uma tarefa")
 public class TaskDTO {
 
-    @JsonProperty("id")
+    @Schema(description = "Identificador da tarefa, atribuído pelo servidor", example = "1",
+            accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
     @NotBlank(message = "Title is required")
     @Size(max = 100, message = "Title must be less than 100 characters")
-    @JsonProperty("title")
+    @Schema(description = "Título da tarefa", example = "Estudar Spring Boot", maxLength = 100,
+            requiredMode = Schema.RequiredMode.REQUIRED)
     private String title;
 
     @Size(max = 500, message = "Description must be less than 500 characters")
-    @JsonProperty("description")
+    @Schema(description = "Descrição detalhada da tarefa", example = "Completar o tutorial de Spring Boot",
+            maxLength = 500)
     private String description;
 
-    @JsonProperty("completed")
-    private boolean completed;
+    @Schema(description = "Estado de conclusão. Se omitido em um PUT, o estado atual é preservado",
+            example = "false")
+    private Boolean completed;
 
+    /** Construtor sem argumentos exigido pelo Jackson. */
     public TaskDTO() {
         this.title = "";
         this.completed = false;
     }
 
-    public TaskDTO(Long id, String title, String description, boolean completed) {
+    public TaskDTO(Long id, String title, String description, Boolean completed) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -45,7 +58,8 @@ public class TaskDTO {
         return description;
     }
 
-    public boolean getCompleted() {
+    /** @return o estado de conclusão, ou {@code null} se o campo não foi informado */
+    public Boolean getCompleted() {
         return completed;
     }
 
@@ -61,7 +75,7 @@ public class TaskDTO {
         this.description = description;
     }
 
-    public void setCompleted(boolean completed) {
+    public void setCompleted(Boolean completed) {
         this.completed = completed;
     }
 }

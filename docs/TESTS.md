@@ -30,16 +30,20 @@ Testes automatizados são códigos que verificam se o código de produção func
 
 ### Pirâmide de Testes
 
-```plaintext
-        /\
-       /  \      Testes E2E (poucos)
-      /    \     - Testam a aplicação completa
-     /------\    
-    /        \   Testes de Integração (médio)
-   /          \  - Testam múltiplas camadas juntas
-  /------------\
- /              \ Testes Unitários (muitos)
-/________________\ - Testam componentes isolados
+A ideia da pirâmide é ter muitos testes rápidos e baratos na base, e poucos testes lentos e caros
+no topo:
+
+```mermaid
+flowchart TD
+    E["E2E — poucos<br/>Testam a aplicação completa, lentos<br/>Neste projeto: smoke test do CRUD no CI, contra a stack Docker"]
+    I["Integração — quantidade média<br/>Testam várias camadas juntas, com componentes reais<br/>TaskRepositoryTest · GlobalExceptionHandlerTest · TodolistApiApplicationTests"]
+    U["Unitários — muitos<br/>Testam um componente isolado com mocks, rápidos (milissegundos)<br/>TaskServiceTest · TaskControllerTest · TaskMapperTest · TaskDTOTest · TaskTest"]
+
+    E --- I --- U
+
+    style E fill:#ffe0e0,stroke:#c66,color:#000
+    style I fill:#e0ecff,stroke:#68c,color:#000
+    style U fill:#e0ffe4,stroke:#6a6,color:#000
 ```
 
 Nossa aplicação foca em **testes unitários** e **testes de integração**.
@@ -51,18 +55,44 @@ Nossa aplicação foca em **testes unitários** e **testes de integração**.
 ```plaintext
 src/test/java/com/todolist/api/
 ├── controller/
-│   └── TaskControllerTest.java      # Testa endpoints HTTP
+│   └── TaskControllerTest.java          # Testa endpoints HTTP (caminho feliz)
 ├── service/
-│   └── TaskServiceTest.java         # Testa lógica de negócio
+│   └── TaskServiceTest.java             # Testa lógica de negócio
 ├── repository/
-│   └── TaskRepositoryTest.java      # Testa acesso ao banco
+│   └── TaskRepositoryTest.java          # Testa acesso ao banco
+├── exceptions/
+│   └── GlobalExceptionHandlerTest.java  # Testa os caminhos de erro da API
+├── config/
+│   └── OpenApiDocsTest.java             # Testa a documentação OpenAPI/Swagger
 ├── mapper/
-│   └── TaskMapperTest.java          # Testa conversões Entity↔DTO
+│   └── TaskMapperTest.java              # Testa conversões Entity↔DTO
 ├── model/
-│   └── TaskTest.java                # Testa entidade
+│   └── TaskTest.java                    # Testa entidade
 └── dto/
-    └── TaskDTOTest.java             # Testa DTO
+    └── TaskDTOTest.java                 # Testa DTO
+
+src/test/resources/
+└── application-test.properties          # Configuração do profile 'test' (H2 em memória)
 ```
+
+### Banco de dados nos testes
+
+Os testes **não dependem de MySQL nem de Docker**. As classes que sobem o contexto do Spring
+(`TaskRepositoryTest` e `TodolistApiApplicationTests`) são anotadas com `@ActiveProfiles("test")`,
+que ativa `src/test/resources/application-test.properties` e aponta o datasource para um **H2 em
+memória**, recriado a cada execução:
+
+```properties
+spring.datasource.url=jdbc:h2:mem:todolist_test;DB_CLOSE_DELAY=-1;MODE=MySQL
+spring.jpa.hibernate.ddl-auto=create-drop
+```
+
+`MODE=MySQL` faz o H2 aceitar a sintaxe do MySQL, mantendo os testes fiéis ao banco de produção.
+
+> Sem esse profile, os testes herdariam o datasource de `src/main/resources/application.properties`
+> e tentariam se conectar ao MySQL de desenvolvimento em `localhost:3406` — o que faz a suíte
+> falhar quando o Docker não está no ar e, quando está, faz os testes escreverem no banco de
+> desenvolvimento.
 
 ### Espelhamento da Estrutura
 
@@ -90,7 +120,7 @@ A estrutura de testes **espelha** a estrutura do código de produção:
 
 - `TaskServiceTest` — testa lógica de negócio
 - `TaskMapperTest` — testa conversões
-- `TaskDTOTest` — testa objetos de transferência
+- `TaskDTOTest` e `TaskTest` — testam objetos de transferência e a entidade
 
 ### 2. Testes de Integração
 
@@ -105,8 +135,11 @@ A estrutura de testes **espelha** a estrutura do código de produção:
 
 **Exemplos na aplicação:**
 
-- `TaskRepositoryTest` — testa com banco H2 real
+- `TaskRepositoryTest` — testa contra um banco H2 real em memória
 - `TaskControllerTest` — testa requisições HTTP simuladas via `MockMvc`
+- `GlobalExceptionHandlerTest` — testa os caminhos de erro da API de ponta a ponta
+- `TodolistApiApplicationTests` — teste de fumaça: sobe o contexto completo do Spring
+- `OpenApiDocsTest` — sobe um servidor HTTP real e verifica a documentação OpenAPI
 
 ---
 
@@ -134,8 +167,10 @@ A estrutura de testes **espelha** a estrutura do código de produção:
 | Anotação | Uso | Quando usar |
 | -------- | --- | ----------- |
 | `@DataJpaTest` | Testa repositories | `TaskRepositoryTest` |
+| `@ActiveProfiles("test")` | Ativa o profile de teste (H2) | Toda classe que sobe o contexto Spring |
+| `@AutoConfigureTestDatabase(replace = NONE)` | Impede a troca automática do datasource | `TaskRepositoryTest`, para usar o H2 do profile |
 | `@WebMvcTest` | Testa controllers | Alternativa ao MockMvc standalone |
-| `@SpringBootTest` | Carrega contexto completo | Testes E2E |
+| `@SpringBootTest` | Carrega contexto completo | `TodolistApiApplicationTests` |
 
 ---
 
@@ -311,12 +346,57 @@ verify(taskRepository, times(1)).findById(1L);
 
 **O que testa:** Operações CRUD no banco, queries, integridade dos dados
 
-**Ferramentas:** `@DataJpaTest` (banco H2 em memória), `@Autowired TaskRepository`
+**Ferramentas:** `@DataJpaTest` + `@ActiveProfiles("test")` (banco H2 em memória),
+`@Autowired TaskRepository`
 
 ```java
 Task savedTask = taskRepository.save(task);
 assertNotNull(savedTask.getId());
 ```
+
+Inclui também um **teste de regressão** que persiste uma descrição de 500 caracteres, garantindo
+que a coluna do banco comporta o tamanho máximo aceito pela validação do `TaskDTO`.
+
+### 3.1. Exception Handler Tests (`GlobalExceptionHandlerTest`)
+
+**O que testa:** Os caminhos de erro da API — qual status HTTP e qual corpo o cliente recebe
+quando algo dá errado.
+
+**Ferramentas:** `MockMvc` com `setControllerAdvice()`, `@Mock TaskService`
+
+```java
+mockMvc = MockMvcBuilders.standaloneSetup(taskController)
+        .setControllerAdvice(new GlobalExceptionHandler())
+        .build();
+```
+
+> `setControllerAdvice()` é obrigatório: sem ele o MockMvc standalone ignora o
+> `@ControllerAdvice` e usa o tratamento padrão do Spring — os testes estariam verificando um
+> comportamento diferente do da aplicação real.
+
+Cenários cobertos: validação de campo (400), id não numérico (400), JSON malformado (400),
+corpo ausente (400), método não suportado (405), exceção inesperada (500 genérico, sem vazar a
+mensagem original) e o caminho feliz, para garantir que o handler não interfere nele.
+
+### 3.2. OpenAPI Tests (`OpenApiDocsTest`)
+
+**O que testa:** Que a documentação interativa sobe e descreve a API corretamente.
+
+**Ferramentas:** `@SpringBootTest(webEnvironment = RANDOM_PORT)`, `TestRestTemplate`
+
+```java
+ResponseEntity<String> response = restTemplate.getForEntity("/v3/api-docs", String.class);
+assertEquals(HttpStatus.OK, response.getStatusCode());
+assertTrue(response.getBody().contains("To-Do List API"));
+```
+
+**Por que testar documentação?** Porque ela é gerada em tempo de execução pelo SpringDoc a partir
+das anotações dos controllers — nada disso é verificado em tempo de compilação. Uma versão
+incompatível do SpringDoc ou uma anotação malformada só apareceria ao abrir o Swagger UI no
+navegador. Este teste transforma esse tipo de quebra em falha de build.
+
+> Não é hipotético: foi exatamente este teste que revelou que o SpringDoc 2.5.0 é incompatível
+> com o Spring Framework 6.2 e fazia `/v3/api-docs` retornar 500.
 
 ### 4. Mapper Tests (`TaskMapperTest`)
 
@@ -344,8 +424,10 @@ assertFalse(dto.getCompleted());
 
 ### Pelo Maven (linha de comando)
 
+Nenhum comando abaixo exige banco de dados ou Docker — os testes usam H2 em memória.
+
 ```bash
-# Executar todos os testes
+# Executar todos os testes (já gera o relatório de cobertura)
 ./mvnw test
 
 # Executar testes de uma classe específica
@@ -354,9 +436,62 @@ assertFalse(dto.getCompleted());
 # Executar um teste específico
 ./mvnw test -Dtest=TaskControllerTest#testGetAllTasks
 
-# Ver relatório de cobertura
-./mvnw test jacoco:report
+# Executar os testes e reprovar o build se a cobertura ficar abaixo do mínimo
+./mvnw verify
 ```
+
+## Relatórios HTML
+
+A saída do terminal mostra apenas o resumo. Para navegar pelos resultados classe a classe, teste
+a teste, o projeto gera dois relatórios em HTML.
+
+### Relatório de execução dos testes
+
+```bash
+# Roda os testes e gera o relatório
+./mvnw surefire-report:report
+
+# Apenas gera o HTML a partir da última execução (não roda os testes de novo)
+./mvnw surefire-report:report-only
+```
+
+Saída: **`target/reports/surefire.html`**
+
+Mostra o total de testes, falhas, erros e tempo, o detalhamento por classe com o tempo de cada
+método, e a stack trace completa de cada teste que falhou — bem mais legível que o XML bruto em
+`target/surefire-reports/`.
+
+### Relatório de cobertura
+
+```bash
+# Gerado automaticamente por 'mvn test'
+./mvnw test
+```
+
+Saída: **`target/site/jacoco/index.html`**
+
+Mostra a cobertura por pacote e por classe. Ao clicar em uma classe, o código-fonte aparece
+anotado: **verde** para linhas executadas pelos testes, **vermelho** para linhas nunca executadas
+e **amarelo** para condicionais só parcialmente testadas (por exemplo, um `if` em que apenas o
+ramo verdadeiro foi exercitado).
+
+### Abrindo os relatórios
+
+```bash
+# Windows
+start target/reports/surefire.html
+start target/site/jacoco/index.html
+
+# macOS
+open target/reports/surefire.html
+
+# Linux
+xdg-open target/reports/surefire.html
+```
+
+> No CI, os relatórios são publicados como artefatos do workflow — `test-results`,
+> `coverage-report` e `javadoc` — e podem ser baixados na página da execução no GitHub Actions,
+> sem precisar rodar nada localmente.
 
 ### Pelo IDE (VS Code, IntelliJ)
 
@@ -368,9 +503,8 @@ assertFalse(dto.getCompleted());
 
 ## Cobertura de Testes
 
-Cobertura mede quantas linhas/métodos do código foram executados pelos testes.
-
-**Meta ideal:** 80% ou mais de cobertura
+Cobertura mede quantas linhas/métodos do código foram executados pelos testes. O projeto usa
+**JaCoCo**, configurado no `pom.xml`.
 
 | Tipo | Descrição |
 | ---- | --------- |
@@ -378,18 +512,45 @@ Cobertura mede quantas linhas/métodos do código foram executados pelos testes.
 | Branch Coverage | % de condicionais (if/else) testadas |
 | Method Coverage | % de métodos executados |
 
+### Como funciona no projeto
+
+- `./mvnw test` gera o relatório HTML em **`target/site/jacoco/index.html`**
+- `./mvnw verify` além disso **reprova o build** se a cobertura de linhas ficar abaixo do mínimo
+- O mínimo é a propriedade `jacoco.coverage.minimum` no `pom.xml` (atualmente **80%**)
+- Ficam fora da medição as classes sem lógica de negócio: `TodolistApiApplication` e o pacote
+  `config/`
+
+No relatório, verde indica linhas executadas pelos testes e vermelho, linhas nunca executadas —
+é a forma mais rápida de encontrar código sem teste.
+
 ---
 
 ## Boas Práticas
 
 ### 1. Nomenclatura de Testes
 
+A convenção adotada neste projeto é `test<Método><Cenário>`, com o cenário no nome apenas quando
+o teste não é o caminho feliz:
+
 ```java
-// Bom
+@Test void testGetTaskById() { }          // caminho feliz
+@Test void testGetTaskByIdNotFound() { }  // cenário de erro
+```
+
+Para testes com regras mais sutis, nomes mais descritivos comunicam melhor a intenção:
+
+```java
+@Test void testUpdateTaskWithoutCompletedKeepsCurrentState() { }
+```
+
+Duas alternativas comuns em outros projetos, ambas válidas:
+
+```java
+// Nome completo no padrão Should/When
 @Test void testGetTaskById_ShouldReturnTask_WhenTaskExists() { }
 
-// Alternativa com @DisplayName
-@Test 
+// Nome curto + @DisplayName legível
+@Test
 @DisplayName("Deve retornar tarefa quando ela existe")
 void testGetTaskById() { }
 ```
@@ -438,4 +599,4 @@ Quando um teste falha:
 
 ---
 
-**Última atualização:** 24 de abril de 2026
+**Última atualização:** 29 de julho de 2026

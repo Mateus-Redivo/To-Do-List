@@ -7,6 +7,7 @@ import com.todolist.api.repository.TaskRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -17,6 +18,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 /**
@@ -28,11 +30,8 @@ import static org.mockito.Mockito.*;
  * Diferença entre testar Controller e Service:
  * - Controller: Testa requisições HTTP e respostas
  * - Service: Testa a lógica de negócio e interação com o banco de dados
- * 
- * @SuppressWarnings("null"): Suprime avisos de null safety do Java
  */
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("null")
 class TaskServiceTest {
 
     // @Mock: Cria versões simuladas das dependências
@@ -241,7 +240,8 @@ class TaskServiceTest {
 
         // ASSERT
         assertFalse(result);  // Retornou false (falha)
-        verify(taskRepository, never()).deleteById(any());  // Não tentou deletar
+        // anyLong() em vez de any(): any() produziria null, que o repository não aceita
+        verify(taskRepository, never()).deleteById(anyLong());  // Não tentou deletar
     }
 
     /**
@@ -283,5 +283,66 @@ class TaskServiceTest {
         // ASSERT
         assertFalse(result.isPresent());
         verify(taskRepository, never()).save(any(Task.class));
+    }
+
+    /**
+     * TESTE DE REGRESSÃO: Atualizar sem informar 'completed' preserva o estado atual
+     *
+     * Objetivo: Garantir que um PUT que omite o campo 'completed' não desmarque uma
+     * tarefa que já estava concluída.
+     *
+     * Por que este teste existe: 'completed' era um boolean primitivo no DTO, então um
+     * campo ausente no JSON virava false — indistinguível de um false enviado de propósito.
+     * Na prática, renomear uma tarefa concluída a marcava como pendente silenciosamente.
+     * Com Boolean, null significa "não informado" e o service preserva o valor atual.
+     *
+     * ArgumentCaptor: captura o objeto realmente passado ao mock, permitindo inspecionar
+     * o estado da entidade no momento em que o service mandou salvá-la.
+     */
+    @Test
+    void testUpdateTaskWithoutCompletedKeepsCurrentState() {
+        // ARRANGE: Tarefa já concluída no banco
+        task.setCompleted(true);
+        // DTO só com título e descrição — 'completed' não informado
+        TaskDTO partialDTO = new TaskDTO(1L, "Renamed Title", "Renamed Description", null);
+
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
+        when(taskRepository.save(any(Task.class))).thenReturn(task);
+        when(taskMapper.convertToDTO(any(Task.class))).thenReturn(partialDTO);
+
+        // ACT
+        Optional<TaskDTO> result = taskService.updateTask(1L, partialDTO);
+
+        // ASSERT: Título e descrição mudaram, conclusão permaneceu true
+        assertTrue(result.isPresent());
+
+        ArgumentCaptor<Task> savedTask = ArgumentCaptor.forClass(Task.class);
+        verify(taskRepository).save(savedTask.capture());
+        assertEquals("Renamed Title", savedTask.getValue().getTitle());
+        assertTrue(savedTask.getValue().getCompleted());  // Continua concluída
+    }
+
+    /**
+     * TESTE: Atualizar informando 'completed' sobrescreve o estado
+     *
+     * Contraparte do teste acima: quando o cliente envia o campo, o valor deve ser aplicado.
+     */
+    @Test
+    void testUpdateTaskWithCompletedOverwritesState() {
+        // ARRANGE: Tarefa concluída que será marcada como pendente
+        task.setCompleted(true);
+        TaskDTO fullDTO = new TaskDTO(1L, "Test Task", "Test Description", false);
+
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
+        when(taskRepository.save(any(Task.class))).thenReturn(task);
+        when(taskMapper.convertToDTO(any(Task.class))).thenReturn(fullDTO);
+
+        // ACT
+        taskService.updateTask(1L, fullDTO);
+
+        // ASSERT: O false enviado foi aplicado
+        ArgumentCaptor<Task> savedTask = ArgumentCaptor.forClass(Task.class);
+        verify(taskRepository).save(savedTask.capture());
+        assertFalse(savedTask.getValue().getCompleted());
     }
 }
